@@ -541,3 +541,4 @@ window.DIA_ALL.push(
     explain: "Số nữ = 101343,8 - 50576,9 = 50766,9 (nghìn người). Tỉ lệ nữ = 50766,9 / 101343,8 × 100 ≈ 50,1%"
   }
 );
+window.ON_TAP_DATA = window.QUESTIONS = window.DIA_ALL;
