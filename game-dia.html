@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ôn tập Địa lí 12 - Giữa kì 1</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* ===== OPTION ABCD ===== */
+.option{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;padding:13px 15px;border-radius:13px;border:1.5px solid #2b3a55;background:#101a2c;color:#dbe4f3;font-size:15px;line-height:1.5;cursor:pointer;transition:.16s;font-family:inherit;margin-bottom:10px}
+.option:hover{border-color:#38bdf8;background:#16233a;transform:translateX(4px)}
+.option .letter{flex:0 0 28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#26344d;font-weight:800;font-size:13px;color:#a8b8d0}
+.option .otext{flex:1;padding-top:2px}
+.option.correct{background:rgba(34,197,94,.16);border-color:#22c55e;color:#bbf7d0}
+.option.correct .letter{background:#22c55e;color:#052e16}
+.option.wrong{background:rgba(239,68,68,.16);border-color:#ef4444;color:#fecaca}
+.option.wrong .letter{background:#ef4444;color:#450a0a}
+.options.locked .option{pointer-events:none}
+
+/* ===== ĐÚNG / SAI ===== */
+.ds-doc{background:rgba(13,22,38,.9);border:1.5px solid #26344d;border-radius:14px;padding:16px;margin-bottom:14px}
+.ds-doc .doc-label{display:inline-block;font-size:11px;font-weight:800;letter-spacing:1px;background:rgba(168,85,247,.15);color:#c084fc;padding:4px 10px;border-radius:99px;margin-bottom:10px}
+.ds-doc .doc-text{font-size:14px;line-height:1.7;color:#e8eefc;font-style:italic;margin-bottom:10px}
+.ds-statement{background:#101a2c;border:1.5px solid #26344d;border-radius:12px;padding:12px 14px;margin-bottom:10px;transition:.2s}
+.ds-statement.correct{border-color:#22c55e;background:rgba(34,197,94,.08)}
+.ds-statement.wrong{border-color:#ef4444;background:rgba(239,68,68,.08)}
+.ds-statement.locked{pointer-events:none;opacity:.85}
+.ds-statement .st-text{font-size:13.5px;line-height:1.55;color:#dbe4f3;margin-bottom:10px}
+.ds-statement .st-text .st-letter{font-weight:900;color:#fbbf24;margin-right:6px}
+.ds-statement .st-buttons{display:flex;gap:8px}
+.ds-btn{flex:1;padding:9px 12px;border-radius:9px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;border:1.5px solid;transition:.18s;background:transparent}
+.ds-btn.dung{border-color:#22c55e;color:#4ade80}
+.ds-btn.sai{border-color:#ef4444;color:#f87171}
+.ds-btn.selected-dung{background:rgba(34,197,94,.25);color:#fff;border-color:#22c55e}
+.ds-btn.selected-sai{background:rgba(239,68,68,.25);color:#fff;border-color:#ef4444}
+.ds-btn.correct-ans{background:rgba(34,197,94,.3);color:#bbf7d0;border-color:#22c55e}
+.ds-btn.wrong-ans{background:rgba(239,68,68,.3);color:#fecaca;border-color:#ef4444}
+.ds-btn:disabled{cursor:not-allowed;opacity:.6}
+
+/* ===== TRẢ LỜI NGẮN ===== */
+.tl-q{background:rgba(13,22,38,.9);border:1.5px solid #26344d;border-radius:14px;padding:16px;margin-bottom:16px;font-size:15px;line-height:1.7;color:#e8eefc;white-space:pre-line}
+.tl-input-wrap{display:flex;gap:8px;margin-bottom:12px}
+.tl-input{flex:1;padding:14px 16px;border-radius:12px;background:#0d1626;border:2px solid #2b3a55;color:#e2e8f0;font-size:16px;font-family:inherit;outline:none}
+.tl-input:focus{border-color:#38bdf8}
+.tl-input.correct{border-color:#22c55e;background:rgba(34,197,94,.08)}
+.tl-input.wrong{border-color:#ef4444;background:rgba(239,68,68,.08)}
+.tl-submit{padding:14px 20px;border-radius:12px;border:none;background:linear-gradient(90deg,#0ea5e9,#6366f1);color:#fff;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer;white-space:nowrap}
+.tl-submit:disabled{opacity:.5;cursor:not-allowed}
+.tl-hint{padding:10px 14px;border-radius:10px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);color:#7dd3fc;font-size:13px;margin-bottom:10px}
+
+/* ===== GIẢI THÍCH ===== */
+.explain-box{padding:12px 14px;border-radius:10px;background:rgba(34,197,94,.08);border:1.5px solid #22c55e;color:#bbf7d0;font-size:13.5px;margin-top:12px;display:none;line-height:1.6}
+.explain-box.show{display:block}
+.explain-box.wrong{background:rgba(239,68,68,.08);border-color:#ef4444;color:#fecaca}
+.explain-box .ex-label{font-weight:900;display:block;margin-bottom:6px;font-size:12.5px;letter-spacing:.5px}
+
+/* ===== FEEDBACK ===== */
+.ds-feedback{text-align:center;padding:12px;border-radius:10px;font-weight:800;font-size:14px;margin-top:12px;display:none}
+.ds-feedback.show{display:block}
+.ds-feedback.ok{background:rgba(34,197,94,.12);border:1.5px solid #22c55e;color:#4ade80}
+.ds-feedback.no{background:rgba(239,68,68,.12);border:1.5px solid #ef4444;color:#f87171}
+
+/* ===== DELAY SLIDER ===== */
+.delay-row{display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 12px;background:rgba(13,22,38,.6);border:1px solid #26344d;border-radius:10px}
+.delay-row .lbl{font-size:12px;font-weight:700;color:#94a3b8;white-space:nowrap}
+.delay-row input[type="range"]{flex:1;accent-color:#38bdf8;cursor:pointer}
+.delay-row .val{font-size:13px;font-weight:900;color:#38bdf8;min-width:36px;text-align:right}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ===== MÀN HÌNH BẮT ĐẦU ===== -->
+<section id="screenStart" class="screen active">
+  <div class="card">
+    <a href="game.html" class="btn-back">← Quay lại</a>
+    <h1>🌏 ÔN TẬP ĐỊA LÍ 12</h1>
+    <p class="sub">Giữa học kì 1 • 60 câu ABCD + 6 Đ/S + 8 TLN</p>
+
+    <label class="field">
+      <span>NHẬP TÊN CỦA BẠN</span>
+      <input id="playerName" type="text" maxlength="20" placeholder="VD: Nguyễn Văn A" autocomplete="off">
+    </label>
+
+    <p class="label-diff">CHỌN MỨC ĐỘ</p>
+    <div class="diff-grid" id="diffGrid">
+      <button class="diff on" type="button" data-key="easy">
+        <b>THOẢI MÁI</b><small>Không giới hạn thời gian</small>
+      </button>
+      <button class="diff" type="button" data-key="medium">
+        <b>TRUNG BÌNH</b><small>60 giây / câu</small>
+      </button>
+      <button class="diff" type="button" data-key="hard">
+        <b>KHÓ</b><small>40 giây / câu</small>
+      </button>
+    </div>
+
+    <p class="label-diff">THỜI GIAN XEM GIẢI THÍCH</p>
+    <div class="delay-row">
+      <span class="lbl">⏱️ Delay chuyển câu</span>
+      <input type="range" id="delaySlider" min="0" max="2" step="1" value="0">
+      <span class="val" id="delayVal">5s</span>
+    </div>
+
+    <button class="btn-primary" id="btnStart">BẮT ĐẦU ⚔️</button>
+    <p class="foot" id="totalInfo">Đang tải câu hỏi...</p>
+  </div>
+</section>
+
+<!-- ===== MÀN HÌNH LÀM BÀI ===== -->
+<section id="screenQuiz" class="screen">
+  <div class="card">
+    <div class="topbar">
+      <div class="who">
+        <div class="ava" id="avatar">?</div>
+        <span class="nm" id="hudName">Player</span>
+      </div>
+      <div class="stats">
+        <div class="chip">🏆 <b id="hudScore">0</b></div>
+        <div class="chip">📝 <b id="hudProgress">1/74</b></div>
+        <button class="btn-quit" id="btnQuit">Thoát</button>
+      </div>
+    </div>
+
+    <div class="timer-wrap" id="timerWrap">
+      <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+      <div class="timer-txt" id="timerText">--s</div>
+    </div>
+
+    <div id="questionWrap"></div>
+    <div class="ds-feedback" id="feedback"></div>
+    <div class="explain-box" id="explainBox"></div>
+
+    <div class="delay-row" style="margin-top:16px">
+      <span class="lbl">⏱️ Delay</span>
+      <input type="range" id="delaySlider2" min="0" max="2" step="1" value="0">
+      <span class="val" id="delayVal2">5s</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MÀN HÌNH KẾT THÚC ===== -->
+<section id="screenEnd" class="screen">
+  <div class="card">
+    <div class="end-title" id="endTitle">HOÀN THÀNH!</div>
+    <div class="end-name" id="endName"></div>
+    <div class="score-big" id="endScore">0</div>
+    <div class="score-lbl">TỔNG ĐIỂM</div>
+
+    <div class="stat-grid">
+      <div class="stat g"><b id="stCorrect">0</b><small>ĐÚNG</small></div>
+      <div class="stat r"><b id="stWrong">0</b><small>SAI</small></div>
+      <div class="stat y"><b id="stAcc">0%</b><small>CHÍNH XÁC</small></div>
+      <div class="stat"><b id="stStreak">0</b><small>CHUỖI DÀI</small></div>
+    </div>
+
+    <div class="wrong-list" id="wrongList"></div>
+
+    <div class="btn-row">
+      <button class="btn-ghost" id="btnHome">🏠 Quay lại</button>
+      <button class="btn-primary" id="btnReplay" style="flex:1">🔄 CHƠI LẠI</button>
+    </div>
+  </div>
+</section>
+
+</div>
+<script>
+/* ===== STATE ===== */
+const params = new URLSearchParams(window.location.search);
+let DANH_SACH_CAU = [];
+let danhSachChoi = [];
+let cauHienTai = 0;
+let selectedDiff = "easy";
+let playerName = "";
+let score = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let streak = 0;
+let bestStreak = 0;
+let timerId = null;
+let timeLeft = 0;
+let totalTime = 0;
+let wrongList = [];
+let soYDaTraLoi = 0;
+let soYDungTrongCau = 0;
+let delayOptions = [5, 10, 20];   /* 3 mức delay */
+let delayChoice = 0;              /* index vào delayOptions */
+
+const $ = id => document.getElementById(id);
+
+const DIFFICULTIES = {
+  easy:   { label:"THOẢI MÁI",   time: 0  },
+  medium: { label:"TRUNG BÌNH",  time: 60 },
+  hard:   { label:"KHÓ",         time: 40 }
+};
+
+/* ===== LOAD DATA ===== */
+const scriptData = document.createElement("script");
+scriptData.src = "data/dia-giua-ki-1.js";
+scriptData.onerror = function(){
+  $("totalInfo").innerHTML = '<span style="color:#f87171">⚠️ Chưa có file data/dia-giua-ki-1.js!</span>';
+  $("btnStart").disabled = true;
+};
+scriptData.onload = function(){
+  DANH_SACH_CAU = window.DIA_ALL || [];
+  $("totalInfo").textContent = "Tổng cộng: " + DANH_SACH_CAU.length + " câu";
+  initEvents();
+};
+document.body.appendChild(scriptData);
+
+/* ===== INIT EVENTS ===== */
+function initEvents(){
+  /* Chọn mức độ */
+  [...$("diffGrid").querySelectorAll(".diff")].forEach(btn=>{
+    btn.onclick = ()=>{
+      selectedDiff = btn.dataset.key;
+      [...$("diffGrid").children].forEach(b=>b.classList.toggle("on", b === btn));
+    };
+  });
+
+  /* Gán sự kiện cho 2 thanh gạt delay */
+  ["delaySlider", "delaySlider2"].forEach(id => {
+    const el = $(id);
+    if(!el) return;
+    el.value = delayChoice;
+    el.oninput = function(){
+      delayChoice = parseInt(this.value);
+      updateDelayLabels();
+    };
+  });
+  updateDelayLabels();
+
+  $("btnStart").onclick = startGame;
+  $("playerName").addEventListener("keydown", e=>{ if(e.key === "Enter") startGame(); });
+  $("btnQuit").onclick = ()=>{ if(confirm("Thoát?")) window.location.href = "game.html"; };
+  $("btnHome").onclick = ()=>{ window.location.href = "game.html"; };
+  $("btnReplay").onclick = ()=>{ window.location.reload(); };
+}
+
+/* Cập nhật nhãn hiển thị delay trên cả 2 thanh gạt */
+function updateDelayLabels(){
+  const txt = delayOptions[delayChoice] + "s";
+  if($("delayVal"))  $("delayVal").textContent  = txt;
+  if($("delayVal2")) $("delayVal2").textContent = txt;
+}
+
+/* Lấy số giây delay hiện tại */
+function getDelaySec(){
+  return delayOptions[delayChoice];
+}
+
+/* ===== START GAME ===== */
+function startGame(){
+  const name = $("playerName").value.trim();
+  if(!name){
+    $("playerName").classList.add("err");
+    $("playerName").focus();
+    setTimeout(()=>$("playerName").classList.remove("err"), 450);
+    return;
+  }
+  if(DANH_SACH_CAU.length === 0){ alert("Chưa có câu hỏi!"); return; }
+
+  playerName = name;
+  score = 0; correctCount = 0; wrongCount = 0; streak = 0; bestStreak = 0;
+  cauHienTai = 0; wrongList = [];
+  soYDaTraLoi = 0; soYDungTrongCau = 0;
+
+  /* Trộn thứ tự câu hỏi */
+  danhSachChoi = [...DANH_SACH_CAU].sort(()=>Math.random()-0.5);
+
+  $("hudName").textContent = playerName;
+  $("avatar").textContent = playerName.charAt(0).toUpperCase();
+  $("hudScore").textContent = "0";
+
+  showScreen("screenQuiz");
+  renderQuestion();
+}
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active", s.id === id));
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ===== RENDER CÂU HỎI (router) ===== */
+function renderQuestion(){
+  if(cauHienTai >= danhSachChoi.length || !danhSachChoi[cauHienTai]){
+    endGame(); return;
+  }
+
+  const cau = danhSachChoi[cauHienTai];
+  $("hudProgress").textContent = (cauHienTai + 1) + "/" + danhSachChoi.length;
+
+  const wrap = $("questionWrap");
+  wrap.innerHTML = "";
+
+  const fb = $("feedback");
+  fb.textContent = "";
+  fb.className = "ds-feedback";
+
+  const ex = $("explainBox");
+  ex.textContent = "";
+  ex.className = "explain-box";
+
+  soYDaTraLoi = 0;
+  soYDungTrongCau = 0;
+
+  if(cau.type === "abcd")         renderABCD(cau, wrap);
+  else if(cau.type === "dungsai") renderDungSai(cau, wrap);
+  else if(cau.type === "tlngan")  renderTLNgan(cau, wrap);
+
+  startTimer();
+}
+
+/* ===== BỘ ĐẾM THỜI GIAN ===== */
+function startTimer(){
+  clearInterval(timerId);
+  const cfg = DIFFICULTIES[selectedDiff];
+  const time = cfg.time;
+
+  if(time === 0){
+    $("timerWrap").style.display = "none";
+    return;
+  }
+  $("timerWrap").style.display = "flex";
+  totalTime = time;
+  timeLeft = time;
+  paintTimer();
+
+  timerId = setInterval(function(){
+    timeLeft -= 0.1;
+    if(timeLeft <= 0){
+      timeLeft = 0; paintTimer();
+      clearInterval(timerId);
+      handleTimeout();
+    } else paintTimer();
+  }, 100);
+}
+
+function paintTimer(){
+  const p = Math.max(0, timeLeft / totalTime) * 100;
+  const fill = $("timerFill");
+  fill.style.width = p + "%";
+  fill.style.background = p>50 ? "linear-gradient(90deg,#22c55e,#4ade80)"
+    : p>20 ? "linear-gradient(90deg,#f59e0b,#fbbf24)"
+    : "linear-gradient(90deg,#dc2626,#ef4444)";
+  $("timerText").textContent = Math.ceil(timeLeft) + "s";
+  $("timerText").style.color = p<=20 ? "#f87171" : "#94a3b8";
+}
+
+/* ===== FEEDBACK + GIẢI THÍCH ===== */
+function setFeedback(ok, text){
+  const f = $("feedback");
+  f.textContent = text;
+  f.className = "ds-feedback show " + (ok ? "ok" : "no");
+}
+
+function showExplain(text, isCorrect){
+  const ex = $("explainBox");
+  ex.className = "explain-box show" + (isCorrect ? "" : " wrong");
+  ex.innerHTML = '<span class="ex-label">' + (isCorrect ? "💡 GIẢI THÍCH" : "💡 ĐÁP ÁN & GIẢI THÍCH") + '</span>' + text;
+}
+
+/* ===== CHUYỂN CÂU (delay theo thanh gạt) ===== */
+function nextAfterDelay(){
+  clearInterval(timerId);
+  cauHienTai++;
+  const sec = getDelaySec();
+  setTimeout(function(){
+    renderQuestion();
+  }, sec * 1000);
+}
+
+/* ===== XỬ LÝ HẾT GIỜ ===== */
+function handleTimeout(){
+  const cau = danhSachChoi[cauHienTai];
+  if(!cau) return;
+  streak = 0;
+  const type = cau.type;
+
+  if(type === "abcd"){
+    wrongCount++;
+    wrongList.push({ type:"ABCD", q:cau.q, correct:"ABCD"[cau.a] + ". " + cau.o[cau.a] });
+    const opts = $("options");
+    if(opts){
+      opts.classList.add("locked");
+      [...opts.children].forEach(function(b,i){ if(i === cau.a) b.classList.add("correct"); });
+    }
+    showExplain(cau.explain || "Đáp án đúng là " + "ABCD"[cau.a], false);
+  } else if(type === "dungsai"){
+    const conLai = 4 - soYDaTraLoi;
+    wrongCount += conLai;
+    cau.statements.forEach(function(st, idx){
+      const el = document.querySelector('.ds-statement[data-idx="' + idx + '"]');
+      if(el && !el.classList.contains("locked")){
+        el.classList.add("locked", "wrong");
+        const btns = el.querySelectorAll(".ds-btn");
+        btns.forEach(function(b){ b.disabled = true; });
+        if(st.answer) btns[0].classList.add("correct-ans");
+        else btns[1].classList.add("correct-ans");
+        wrongList.push({ type:"Đ/S", q:"Ý " + "abcd"[idx] + ") " + st.text, correct: st.answer ? "ĐÚNG" : "SAI" });
+      }
+    });
+    showExplain("Hết giờ! Xem các ý đúng/sai bên trên.", false);
+  } else if(type === "tlngan"){
+    wrongCount++;
+    const input = $("tlInput");
+    if(input){ input.disabled = true; input.classList.add("wrong"); }
+    const btn = $("tlSubmit");
+    if(btn) btn.disabled = true;
+    wrongList.push({ type:"TLN", q:cau.q, correct:cau.accept[0], userAns:"(hết giờ)" });
+    showExplain('<b>Đáp án:</b> ' + cau.accept[0] + '<br>' + (cau.explain || ""), false);
+  }
+
+  setFeedback(false, "⏰ Hết giờ! Chuyển câu tiếp...");
+  nextAfterDelay();
+}
+</script>
+<script>
+/* ===== RENDER ABCD (CÓ TRỘN ĐÁP ÁN) ===== */
+function renderABCD(cau, wrap){
+  /* Tạo mảng index [0,1,2,3] rồi trộn */
+  const idxArr = [0, 1, 2, 3];
+  for(let i = idxArr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [idxArr[i], idxArr[j]] = [idxArr[j], idxArr[i]];
+  }
+  /* correctIdxMoi = vị trí mới của đáp án đúng sau khi trộn */
+  const correctIdxMoi = idxArr.indexOf(cau.a);
+
+  const qbox = document.createElement("div");
+  qbox.className = "qbox";
+  qbox.innerHTML = '<div class="badge">CÂU HỎI ABCD</div><div id="qText">' + cau.q + '</div>';
+  wrap.appendChild(qbox);
+
+  const opts = document.createElement("div");
+  opts.className = "options";
+  opts.id = "options";
+
+  idxArr.forEach((origIdx, newIdx)=>{
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "option";
+    btn.innerHTML = '<span class="letter">' + "ABCD"[newIdx] + '</span><span class="otext">' + cau.o[origIdx] + '</span>';
+    btn.onclick = ()=>submitABCD(newIdx, correctIdxMoi, opts, cau);
+    opts.appendChild(btn);
+  });
+  wrap.appendChild(opts);
+}
+
+function submitABCD(userIdx, correctIdx, opts, cau){
+  if(opts.classList.contains("locked")) return;
+  opts.classList.add("locked");
+  clearInterval(timerId);
+
+  const btns = [...opts.children];
+  const isCorrect = (userIdx === correctIdx);
+
+  btns[correctIdx].classList.add("correct");
+  if(!isCorrect) btns[userIdx].classList.add("wrong");
+
+  if(isCorrect){
+    score += 100;
+    correctCount++;
+    streak++;
+    if(streak > bestStreak) bestStreak = streak;
+    setFeedback(true, "✅ Chính xác! +100đ");
+    showExplain(cau.explain || "Đáp án đúng.", true);
+  } else {
+    streak = 0;
+    wrongCount++;
+    wrongList.push({
+      type: "ABCD",
+      q: cau.q,
+      correct: "ABCD"[correctIdx] + ". " + cau.o[cau.a]
+    });
+    setFeedback(false, "❌ Sai! Đáp án: " + "ABCD"[correctIdx]);
+    showExplain((cau.explain || "") + "<br><b>Đáp án đúng:</b> " + "ABCD"[correctIdx], false);
+  }
+  $("hudScore").textContent = score;
+  nextAfterDelay();
+}
+
+/* ===== RENDER ĐÚNG / SAI ===== */
+function renderDungSai(cau, wrap){
+  const qbox = document.createElement("div");
+  qbox.className = "qbox";
+  qbox.innerHTML = '<div class="badge">CÂU HỎI ĐÚNG / SAI</div>';
+  wrap.appendChild(qbox);
+
+  if(cau.q){
+    const doc = document.createElement("div");
+    doc.className = "ds-doc";
+    doc.innerHTML = '<span class="doc-label">📖 ĐỌC ĐOẠN TƯ LIỆU</span><div class="doc-text">' + cau.q + '</div>';
+    wrap.appendChild(doc);
+  }
+
+  const title = document.createElement("div");
+  title.style.cssText = "font-size:13px;font-weight:800;color:#fbbf24;margin:14px 0 10px;letter-spacing:.5px";
+  title.textContent = "ĐÁNH GIÁ ĐÚNG / SAI CÁC Ý SAU:";
+  wrap.appendChild(title);
+
+  cau.statements.forEach((st, idx)=>{
+    const letter = "abcd"[idx];
+    const el = document.createElement("div");
+    el.className = "ds-statement";
+    el.dataset.idx = idx;
+
+    const text = document.createElement("div");
+    text.className = "st-text";
+    text.innerHTML = '<span class="st-letter">' + letter + ')</span>' + st.text;
+
+    const buttons = document.createElement("div");
+    buttons.className = "st-buttons";
+
+    const btnD = document.createElement("button");
+    btnD.type = "button";
+    btnD.className = "ds-btn dung";
+    btnD.textContent = "✓ ĐÚNG";
+    btnD.onclick = ()=>selectDungSai(idx, true, cau, el);
+
+    const btnS = document.createElement("button");
+    btnS.type = "button";
+    btnS.className = "ds-btn sai";
+    btnS.textContent = "✗ SAI";
+    btnS.onclick = ()=>selectDungSai(idx, false, cau, el);
+
+    buttons.append(btnD, btnS);
+    el.append(text, buttons);
+    wrap.appendChild(el);
+  });
+}
+
+function selectDungSai(idx, chonDung, cau, el){
+  if(el.classList.contains("locked")) return;
+  el.classList.add("locked");
+
+  const st = cau.statements[idx];
+  const btns = el.querySelectorAll(".ds-btn");
+  const dungThatSu = st.answer;
+  const traLoiDung = (chonDung === dungThatSu);
+
+  if(chonDung) btns[0].classList.add("selected-dung");
+  else btns[1].classList.add("selected-sai");
+
+  if(dungThatSu){
+    btns[0].classList.add("correct-ans");
+    if(!chonDung) btns[1].classList.add("wrong-ans");
+  } else {
+    btns[1].classList.add("correct-ans");
+    if(chonDung) btns[0].classList.add("wrong-ans");
+  }
+  btns.forEach(b=>b.disabled = true);
+
+  if(traLoiDung){
+    el.classList.add("correct");
+    soYDungTrongCau++;
+    score += 25;
+    correctCount++;
+    streak++;
+    if(streak > bestStreak) bestStreak = streak;
+  } else {
+    el.classList.add("wrong");
+    streak = 0;
+    wrongCount++;
+    wrongList.push({
+      type: "Đ/S",
+      q: "Ý " + "abcd"[idx] + ") " + st.text,
+      correct: dungThatSu ? "ĐÚNG" : "SAI"
+    });
+  }
+  soYDaTraLoi++;
+  $("hudScore").textContent = score;
+
+  /* Đã trả lời hết 4 ý */
+  if(soYDaTraLoi >= 4){
+    let bonus = 0;
+    if(soYDungTrongCau === 4){ bonus = 50; score += 50; }
+    $("hudScore").textContent = score;
+    const ok = soYDungTrongCau >= 2;
+    setFeedback(ok, "Hoàn thành! Đúng " + soYDungTrongCau + "/4 ý" + (bonus ? " (+50 bonus)" : ""));
+    showExplain("Đúng " + soYDungTrongCau + "/4 ý." + (bonus ? " <b>+50đ thưởng!</b>" : ""), ok);
+    nextAfterDelay();
+  }
+}
+
+/* ===== RENDER TRẢ LỜI NGẮN ===== */
+function renderTLNgan(cau, wrap){
+  const qBox = document.createElement("div");
+  qBox.className = "tl-q";
+  qBox.textContent = cau.q;
+  wrap.appendChild(qBox);
+
+  if(cau.hint){
+    const hint = document.createElement("div");
+    hint.className = "tl-hint";
+    hint.innerHTML = '<b>💡 Gợi ý:</b> ' + cau.hint;
+    wrap.appendChild(hint);
+  }
+
+  const inputWrap = document.createElement("div");
+  inputWrap.className = "tl-input-wrap";
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "tl-input";
+  input.id = "tlInput";
+  input.placeholder = "Nhập đáp án...";
+  input.autocomplete = "off";
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "tl-submit";
+  btn.id = "tlSubmit";
+  btn.textContent = "KIỂM TRA";
+  btn.onclick = ()=>submitTLN(cau);
+  input.addEventListener("keydown", e=>{ if(e.key === "Enter") submitTLN(cau); });
+  inputWrap.append(input, btn);
+  wrap.appendChild(inputWrap);
+
+  input.focus();
+}
+
+function submitTLN(cau){
+  const input = $("tlInput");
+  if(!input || input.disabled) return;
+  const userAns = input.value.trim();
+  if(!userAns) return;
+
+  clearInterval(timerId);
+  const normalize = s => String(s).toLowerCase().replace(/\s+/g, "").replace(/[.,;]/g, "").replace(/°c/g, "");
+  const correctArr = cau.accept.map(a => normalize(a));
+  const isCorrect = correctArr.includes(normalize(userAns));
+
+  input.disabled = true;
+  $("tlSubmit").disabled = true;
+
+  if(isCorrect){
+    input.classList.add("correct");
+    score += 100;
+    correctCount++;
+    streak++;
+    if(streak > bestStreak) bestStreak = streak;
+    setFeedback(true, "✅ Chính xác! +100đ");
+    showExplain(cau.explain || "Đáp án đúng.", true);
+  } else {
+    input.classList.add("wrong");
+    streak = 0;
+    wrongCount++;
+    wrongList.push({
+      type: "TLN",
+      q: cau.q,
+      correct: cau.accept[0],
+      userAns: userAns
+    });
+    setFeedback(false, "❌ Sai! Đáp án: " + cau.accept[0]);
+    showExplain('<b>Đáp án đúng:</b> ' + cau.accept[0] + '<br>' + (cau.explain || ""), false);
+  }
+  $("hudScore").textContent = score;
+  nextAfterDelay();
+}
+
+/* ===== KẾT THÚC GAME ===== */
+function endGame(){
+  clearInterval(timerId);
+  const total = correctCount + wrongCount;
+  const acc = total ? Math.round(correctCount / total * 100) : 0;
+
+  $("endName").textContent = "Người chơi: " + playerName + " • Mức " + DIFFICULTIES[selectedDiff].label;
+  $("endScore").textContent = score.toLocaleString("vi-VN");
+  $("stCorrect").textContent = correctCount;
+  $("stWrong").textContent = wrongCount;
+  $("stAcc").textContent = acc + "%";
+  $("stStreak").textContent = bestStreak;
+
+  let title = "HOÀN THÀNH!";
+  if(acc >= 90) title = "🏆 XUẤT SẮC!";
+  else if(acc >= 70) title = "🌟 RẤT TỐT!";
+  else if(acc >= 50) title = "👍 CỐ GẮNG THÊM!";
+  else title = "📚 ÔN LẠI NHÉ!";
+  $("endTitle").textContent = title;
+
+  const list = $("wrongList");
+  list.innerHTML = "";
+  if(wrongList.length > 0){
+    const h = document.createElement("h3");
+    h.textContent = "❗ CÁC CÂU LÀM SAI (" + wrongList.length + ")";
+    list.appendChild(h);
+    wrongList.forEach(function(w){
+      const d = document.createElement("div");
+      d.className = "wrong-item";
+      const typeColor = w.type === "ABCD" ? "#38bdf8" : w.type === "Đ/S" ? "#22c55e" : "#fbbf24";
+      let html = '<div class="q"><span style="display:inline-block;padding:2px 8px;background:' + typeColor + ';color:#000;font-size:10.5px;font-weight:900;border-radius:99px;margin-right:6px">' + w.type + '</span>' + w.q + '</div>';
+      html += '<div class="a">';
+      if(w.userAns) html += 'Bạn trả lời: <b style="color:#f87171">' + w.userAns + '</b> | ';
+      html += 'Đáp án: <b>' + w.correct + '</b></div>';
+      d.innerHTML = html;
+      list.appendChild(d);
+    });
+  } else {
+    const d = document.createElement("div");
+    d.className = "wrong-item";
+    d.style.borderLeftColor = "#22c55e";
+    d.innerHTML = '<div class="q" style="color:#4ade80;margin:0">🎉 Tuyệt vời! Không làm sai câu nào!</div>';
+    list.appendChild(d);
+  }
+
+  showScreen("screenEnd");
+}
+</script>
+</body>
+</html>
