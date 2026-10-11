@@ -479,7 +479,15 @@ function handleAnswer(selected){
 
     if(S.curseRemaining <= 0 && Math.random() < 0.25) setTimeout(()=>showCursePopup(), 1000);
   }
-
+/* Hiện giải thích nếu có */
+const q = QUESTIONS[S.current.qIndex];
+if(q && q.explain){
+  const box = $("options");
+  const ex = document.createElement("div");
+  ex.className = "explain-box show" + (isCorrect ? "" : " wrong");
+  ex.innerHTML = '<b>💡 GIẢI THÍCH:</b> ' + q.explain;
+  box.appendChild(ex);
+}
   updateHud();
   updatePvpBoard();
 
