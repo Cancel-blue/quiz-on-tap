@@ -472,7 +472,7 @@ function renderPvpBoardMerged(){
     let badgesHTML = "";
 
     if(status.shield > 0) badgesHTML += '<div class="status-badge shield">🛡️<span class="cd">' + status.shield + '</span></div>';
-    if(status.mirror > 0) badgesHTML += '<div class="status-badge mirror">🪞</div>';
+    if(status.mirror > 0) badgesHTML += '<div class="status-badge mirror">🪞<span class="cd">' + status.mirror + '</span></div>';
     if(status.fire > 0)   badgesHTML += '<div class="status-badge fire">🔥<span class="cd">' + status.fire + '</span></div>';
     if(status.radio > 0)  badgesHTML += '<div class="status-badge radio">☢️<span class="cd">' + status.radio + '</span></div>';
     if(status.frozen > 0) badgesHTML += '<div class="status-badge frozen">❄️<span class="cd">' + status.frozen + '</span></div>';
@@ -917,10 +917,10 @@ function executeBotItem(botUid, key, targets){
       break;
 
     case "mirror":
-      clearStatus(botUid, "shield");
-      applyStatus(botUid, "mirror", 999);
-      showToast(botAva + " " + botName + " bật 🪞 Gương phản chiếu!", "warn");
-      break;
+  clearStatus(botUid, "shield");
+  applyStatus(botUid, "mirror", 30);
+  showToast(botAva + " " + botName + " bật 🪞 Gương phản chiếu 30s!", "warn");
+  break;
 
     case "fireball":
       if(targets[0]){
