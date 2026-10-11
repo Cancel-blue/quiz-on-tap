@@ -8,7 +8,7 @@ const ITEMS = {
   double:     { name:"Nhân đôi điểm",  icon:"⚡", slot:"double",     desc:"Câu đúng tiếp theo được x2 điểm",            type:"support" },
   fifty:      { name:"Gợi ý 50:50",    icon:"🎯", slot:"fifty",      desc:"Loại 2 đáp án sai (chỉ câu ABCD)",           type:"support" },
   shield:     { name:"Khiên năng lượng",icon:"🛡️",slot:"shield",     desc:"Kháng mọi sát thương trong 30 giây",         type:"defense" },
-  mirror:     { name:"Gương phản chiếu",icon:"🪞",slot:"mirror",     desc:"Phản mọi đòn tấn công (trừ bom) trong 1 lượt",type:"defense" },
+  mirror:     { name:"Gương phản chiếu",icon:"🪞",slot:"mirror",     desc:"Phản x2 sát thương (1 lượt, 30s). Không phản được Bom/Khiên",type:"defense" },
   freezeBot:  { name:"Đóng băng kép",  icon:"❄️", slot:"freezeBot",  desc:"Đóng băng 2 người chỉ định trong 10 giây",   type:"attack",  needTarget:2 },
   fireball:   { name:"Quả cầu lửa",    icon:"🔥", slot:"fireball",   desc:"Chỉ định 1 người: -100đ + cháy 10s",         type:"attack",  needTarget:1 },
   lightning:  { name:"Thiên lôi",      icon:"⚡", slot:"lightning",  desc:"Random 1 người -100đ (1%→5 tia ALL, 5%→2 tia)",type:"attack",  needTarget:0 },
@@ -318,6 +318,7 @@ function showToast(msg, type){
    HÀM XỬ LÝ SÁT THƯƠNG (CÓ KHIÊN/GƯƠNG)
    ========================================================= */
 function applyDamage(targetUid, amount, sourceUid, isNuke){
+function applyDamage(targetUid, amount, sourceUid, isNuke){
   syncGlobalToPvp();
   const target = pvpPlayers.find(p => p.uid === targetUid);
   if(!target) return 0;
@@ -325,7 +326,6 @@ function applyDamage(targetUid, amount, sourceUid, isNuke){
   const status = playerStatus[targetUid];
   if(!status) return 0;
 
-  /* Chặn tấn công khi có Hoà bình (trừ system) */
   if(peaceActive && sourceUid !== "system"){
     return 0;
   }
@@ -342,15 +342,30 @@ function applyDamage(targetUid, amount, sourceUid, isNuke){
   }
 
   if(status.mirror > 0 && sourceUid && sourceUid !== targetUid){
+    const sourceStatus = playerStatus[sourceUid];
+
+    if(sourceStatus && sourceStatus.shield > 0){
+      showToast("🛡️ Người tấn công có Khiên, Gương không phản được!", "info");
+      target.score = Math.max(0, target.score - amount);
+      syncScores();
+      return amount;
+    }
+
     status.mirror = 0;
+    if(statusTimers[targetUid] && statusTimers[targetUid]["mirror"]){
+      clearInterval(statusTimers[targetUid]["mirror"]);
+      statusTimers[targetUid]["mirror"] = null;
+    }
+
     const reflectDmg = amount * 2;
     const sourcePlayer = pvpPlayers.find(p => p.uid === sourceUid);
     if(sourcePlayer){
       sourcePlayer.score = Math.max(0, sourcePlayer.score - reflectDmg);
       showToast("🪞 Gương phản chiếu! " + sourcePlayer.name + " nhận " + reflectDmg + "đ!", "success");
     }
-    showToast("🪞 Bạn đã phản đòn " + amount + "đ (x2)!", "success");
+    if(targetUid === "me") showToast("🪞 Bạn đã phản đòn " + amount + "đ (x2)!", "success");
     syncScores();
+    updateStatusBadges();
     return -amount;
   }
 
@@ -567,8 +582,8 @@ function executeShield(){
 /* ===== 6. GƯƠNG PHẢN CHIẾU ===== */
 function executeMirror(){
   clearStatus("me", "shield");
-  applyStatus("me", "mirror", 999);
-  showToast("🪞 Gương phản chiếu đã bật!", "success");
+  applyStatus("me", "mirror", 30);
+  showToast("🪞 Gương phản chiếu 30s (1 lượt)!", "success");
 }
 
 /* ===== 7. ĐÓNG BĂNG KÉP (2 người, 10s) ===== */
