@@ -318,7 +318,6 @@ function showToast(msg, type){
    HÀM XỬ LÝ SÁT THƯƠNG (CÓ KHIÊN/GƯƠNG)
    ========================================================= */
 function applyDamage(targetUid, amount, sourceUid, isNuke){
-function applyDamage(targetUid, amount, sourceUid, isNuke){
   syncGlobalToPvp();
   const target = pvpPlayers.find(p => p.uid === targetUid);
   if(!target) return 0;
