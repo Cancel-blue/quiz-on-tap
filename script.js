@@ -63,6 +63,30 @@ function shuffle(a){
 
 /* ===== DELAY SLIDER (5s / 10s / 20s) ===== */
 const DELAY_OPTIONS = [5, 10, 20];
+/* ===== TỐC ĐỘ BOT PVP ===== */
+const BOT_SPEED_OPTIONS = [
+  { label:"Rất chậm", mult:2.0 },
+  { label:"Vừa",      mult:1.0 },
+  { label:"Nhanh",    mult:0.6 },
+  { label:"Siêu nhanh", mult:0.3 }
+];
+let botSpeedChoice = 1;
+
+function initBotSpeedSlider(){
+  const slider = $("botSpeedSlider");
+  const valEl = $("botSpeedVal");
+  if(!slider) return;
+  slider.oninput = function(){
+    botSpeedChoice = parseInt(this.value);
+    if(valEl) valEl.textContent = BOT_SPEED_OPTIONS[botSpeedChoice].label;
+  };
+  if(valEl) valEl.textContent = BOT_SPEED_OPTIONS[botSpeedChoice].label;
+}
+initBotSpeedSlider();
+
+function getBotSpeedMult(){
+  return BOT_SPEED_OPTIONS[botSpeedChoice].mult;
+}
 let delayChoice = 0;
 
 function initDelaySlider(){
@@ -843,17 +867,16 @@ function useItem(key){
    PVP BOTS
    ========================================================= */
 function scheduleBotsAnswer(){
+  const speedMult = getBotSpeedMult();
   S.bots.forEach((bot, idx)=>{
     bot.lastResult = null;
     if(S.frozenBots[idx] && S.frozenBots[idx] > 0){
       S.frozenBots[idx]--;
       return;
     }
-    /* Bot trả lời trong khoảng 40% - 85% thời gian câu, có điều chỉnh theo speed */
     let ratio = 0.4 + Math.random() * 0.45;
-    /* Bot speed cao (nhanh) → trả lời sớm hơn */
     ratio = ratio * (1 / bot.speed);
-    /* Giới hạn không vượt quá 95% thời gian câu (tránh bot trả lời sau khi hết giờ) */
+    ratio = ratio * speedMult;
     ratio = Math.min(ratio, 0.95);
     const delay = S.totalTime * ratio;
 
@@ -866,7 +889,6 @@ function scheduleBotsAnswer(){
     }, delay*1000);
   });
 }
-
 function updatePvpBoard(){
   if(!S || !S.isPvP) return;
   const board = $("pvpBoard");
