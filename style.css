@@ -470,4 +470,13 @@ h1{
 .hoa-sub-btn.bot{background:linear-gradient(90deg,#0ea5e9,#6366f1)}
 .hoa-sub-btn.online{background:linear-gradient(90deg,#10b981,#0ea5e9)}
 .hoa-sub-btn.mix{background:linear-gradient(90deg,#f472b6,#dc2626)}
-
+/* ===== THANH KÉO DELAY GIẢI THÍCH ===== */
+.delay-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:13px;border:1.5px solid #2b3a55;background:#101a2c;margin-bottom:12px}
+.delay-row .lbl{flex:1;display:flex;flex-direction:column}
+.delay-row .lbl b{color:#e2e8f0;font-size:14px}
+.delay-row .lbl small{color:#94a3b8;font-size:11.5px;margin-top:2px}
+.delay-row input[type="range"]{width:100px;accent-color:#38bdf8;cursor:pointer}
+.delay-row .delay-val{min-width:42px;text-align:right;font-weight:900;color:#38bdf8;font-size:14px}
+/* ===== THANH KÉO TỐC ĐỘ BOT ===== */
+#botSpeedRow input[type="range"]{accent-color:#fbbf24}
+#botSpeedRow .delay-val{color:#fbbf24}
