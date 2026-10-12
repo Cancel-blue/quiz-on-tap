@@ -14,7 +14,7 @@ const DIFFICULTIES = {
   mediumFull:  { label:"TRUNG BÌNH", time:60, hard:false, pvp:false, desc:"Đảo vị trí đáp án • 1p/câu" },
   hardFull:    { label:"KHÓ",        time:30, hard:true,  pvp:false, desc:"Trộn đáp án câu khác • 30s/câu" },
   extremeFull: { label:"SIÊU KHÓ",   time:10, hard:true,  pvp:false, desc:"Trộn đáp án câu khác • 10s/câu" },
-  pvpFull:     { label:"PVP 4 NGƯỜI", time:30, hard:false, pvp:true,  desc:"Bạn vs 3 bot • 30 giây/câu" }
+  pvpFull:     { label:"PVP 4 NGƯỜI", time:130, hard:false, pvp:true,  desc:"Bạn vs 3 bot • 2p10 giây/câu" }
 };
 
 const ITEMS = {
@@ -849,10 +849,17 @@ function scheduleBotsAnswer(){
       S.frozenBots[idx]--;
       return;
     }
-    const delay = (1.5 + Math.random()*3) * (1 / bot.speed);
+    /* Bot trả lời trong khoảng 40% - 85% thời gian câu, có điều chỉnh theo speed */
+    let ratio = 0.4 + Math.random() * 0.45;
+    /* Bot speed cao (nhanh) → trả lời sớm hơn */
+    ratio = ratio * (1 / bot.speed);
+    /* Giới hạn không vượt quá 95% thời gian câu (tránh bot trả lời sau khi hết giờ) */
+    ratio = Math.min(ratio, 0.95);
+    const delay = S.totalTime * ratio;
+
     const willBeCorrect = Math.random() < bot.acc;
     setTimeout(()=>{
-      if(!S) return;
+      if(!S || S.dead) return;
       bot.lastResult = willBeCorrect ? "correct" : "wrong";
       if(willBeCorrect) bot.score += 100;
       updatePvpBoard();
