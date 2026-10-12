@@ -118,6 +118,23 @@
         </div>
         <div class="toggle-switch"></div>
       </div>
+      <div class="delay-row" id="delayRow">
+  <div class="lbl">
+    <b>⏱️ Thời gian xem giải thích</b>
+    <small>Chờ bao lâu trước khi sang câu tiếp</small>
+  </div>
+  <input type="range" id="delaySlider" min="0" max="2" step="1" value="0">
+  <span class="delay-val" id="delayVal">5s</span>
+</div>
+
+<div class="delay-row" id="botSpeedRow">
+  <div class="lbl">
+    <b>🤖 Tốc độ Bot (PvP)</b>
+    <small>Bot trả lời nhanh hay chậm</small>
+  </div>
+  <input type="range" id="botSpeedSlider" min="0" max="3" step="1" value="1">
+  <span class="delay-val" id="botSpeedVal">Vừa</span>
+</div>
       <button class="btn-primary" id="btnStart">BẮT ĐẦU ⚔️</button>
       <button class="btn-online" id="btnOnlineMode" type="button">🌐 ĐẤU ONLINE 4 NGƯỜI</button>
     </div>
