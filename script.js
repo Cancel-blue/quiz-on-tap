@@ -9,7 +9,7 @@ const DIFFICULTIES = {
   medium:  { label:"TRUNG BÌNH",  time:60, hard:false, pvp:false, desc:"Đảo vị trí đáp án • 1p/câu" },
   hard:    { label:"KHÓ",         time:40, hard:true,  pvp:false, desc:"Trộn đáp án câu khác • 40s/câu" },
   extreme: { label:"SIÊU KHÓ",    time:20, hard:true,  pvp:false, desc:"Trộn đáp án câu khác • 20s/câu" },
-  pvp:     { label:"PVP 4 NGƯỜI", time:30, hard:false, pvp:true,  desc:"Bạn vs 3 bot • 30s/câu" },
+  pvp:     { label:"PVP 4 NGƯỜI", time:130, hard:false, pvp:true,  desc:"Bạn vs 3 bot • 2p10s/câu" },
   freeFull:    { label:"THOẢI MÁI",   time:0,  hard:false, pvp:false, desc:"Không giới hạn thời gian" },
   mediumFull:  { label:"TRUNG BÌNH", time:60, hard:false, pvp:false, desc:"Đảo vị trí đáp án • 1p/câu" },
   hardFull:    { label:"KHÓ",        time:30, hard:true,  pvp:false, desc:"Trộn đáp án câu khác • 30s/câu" },
