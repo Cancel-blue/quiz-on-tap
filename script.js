@@ -1,14 +1,16 @@
 /* =========================================================
-   SCRIPT.JS - Hỗ trợ 3 loại câu: ABCD + Đúng/Sai + Trả lời ngắn
+   SCRIPT.JS - Bản gộp đầy đủ (v6)
+   Hỗ trợ: ABCD + Đúng/Sai + Trả lời ngắn + Delay + Online
    ========================================================= */
 
-/* ===== CONFIG ===== */
 const DIFFICULTIES = {
+  free:    { label:"THOẢI MÁI",    time:0,  hard:false, pvp:false, desc:"Không giới hạn thời gian" },
   easy:    { label:"DỄ",          time:80, hard:false, pvp:false, desc:"Đảo vị trí đáp án • 1p20s/câu" },
   medium:  { label:"TRUNG BÌNH",  time:60, hard:false, pvp:false, desc:"Đảo vị trí đáp án • 1p/câu" },
   hard:    { label:"KHÓ",         time:40, hard:true,  pvp:false, desc:"Trộn đáp án câu khác • 40s/câu" },
   extreme: { label:"SIÊU KHÓ",    time:20, hard:true,  pvp:false, desc:"Trộn đáp án câu khác • 20s/câu" },
   pvp:     { label:"PVP 4 NGƯỜI", time:30, hard:false, pvp:true,  desc:"Bạn vs 3 bot • 30s/câu" },
+  freeFull:    { label:"THOẢI MÁI",   time:0,  hard:false, pvp:false, desc:"Không giới hạn thời gian" },
   mediumFull:  { label:"TRUNG BÌNH", time:60, hard:false, pvp:false, desc:"Đảo vị trí đáp án • 1p/câu" },
   hardFull:    { label:"KHÓ",        time:30, hard:true,  pvp:false, desc:"Trộn đáp án câu khác • 30s/câu" },
   extremeFull: { label:"SIÊU KHÓ",   time:10, hard:true,  pvp:false, desc:"Trộn đáp án câu khác • 10s/câu" },
@@ -24,12 +26,20 @@ const ITEMS = {
 };
 
 const BOT_POOL = [
-  { name:"Hùng Vương",     ava:"👑", speed:0.65, acc:0.55 },
-  { name:"Lê Lợi",         ava:"🗡️", speed:0.70, acc:0.60 },
-  { name:"Quang Trung",    ava:"🐉", speed:0.75, acc:0.65 },
-  { name:"Trần Hưng Đạo",  ava:"🛡️", speed:0.60, acc:0.50 },
-  { name:"Nguyễn Huệ",     ava:"⚔️", speed:0.72, acc:0.62 },
-  { name:"Lý Thường Kiệt", ava:"🏹", speed:0.68, acc:0.58 }
+  { name:"Hòn tuất",        ava:"🐕", speed:0.65, acc:0.55 },
+  { name:"Bảo Ben",         ava:"🗡️", speed:0.70, acc:0.60 },
+  { name:"Ân Faifai",       ava:"🔥", speed:0.75, acc:0.65 },
+  { name:"Tài mouse",       ava:"🐀", speed:0.60, acc:0.50 },
+  { name:"Văn mạnh",        ava:"👑", speed:0.63, acc:0.73 },
+  { name:"Bảo Nhỏ",         ava:"⚔️", speed:0.72, acc:0.62 },
+  { name:"Tấn Huy",         ava:"🦞", speed:0.61, acc:0.51 },
+  { name:"Hiểu Khê",        ava:"🐜", speed:0.64, acc:0.74 },
+  { name:"Huy Milk",        ava:"🥛", speed:0.62, acc:0.72 },
+  { name:"Hậu",             ava:"🍭", speed:0.64, acc:0.54 },
+  { name:"Cụt ấm dâu",      ava:"🐧", speed:0.54, acc:0.64 },
+  { name:"Vinh Đất",        ava:"🐦‍⬛", speed:0.57, acc:0.67 },
+  { name:"Hoàng Ân",        ava:"👓", speed:0.56, acc:0.66 },  
+  { name:"Thái Sơn",        ava:"🗻", speed:0.68, acc:0.58 }
 ];
 
 let hardcoreMode = false;
@@ -51,21 +61,39 @@ function shuffle(a){
   return a;
 }
 
-/* Nhận diện loại câu hỏi */
+/* ===== DELAY SLIDER (5s / 10s / 20s) ===== */
+const DELAY_OPTIONS = [5, 10, 20];
+let delayChoice = 0;
+
+function initDelaySlider(){
+  const slider = $("delaySlider");
+  const valEl = $("delayVal");
+  if(!slider) return;
+  slider.oninput = function(){
+    delayChoice = parseInt(this.value);
+    if(valEl) valEl.textContent = DELAY_OPTIONS[delayChoice] + "s";
+  };
+  if(valEl) valEl.textContent = DELAY_OPTIONS[delayChoice] + "s";
+}
+initDelaySlider();
+
+function getDelayMs(isCorrect){
+  const sec = DELAY_OPTIONS[delayChoice];
+  return (isCorrect ? sec * 0.5 : sec) * 1000;
+}
+
+/* Nhận diện loại câu */
 function getQType(q) {
   if (!q) return "abcd";
   if (q.type && ["abcd","dungsai","tlngan"].includes(q.type)) return q.type;
   return "abcd";
 }
 
-if(QUESTIONS.length === 0){
-  console.error("Không có data câu hỏi cho môn: " + MON);
-}
+if(QUESTIONS.length === 0) console.error("Không có data câu hỏi cho môn: " + MON);
 
 (function checkChosenDiff(){
   const params = new URLSearchParams(window.location.search);
-  const set = params.get("set");
-  if(set === "full"){
+  if(params.get("set") === "full"){
     const saved = sessionStorage.getItem("chosenDiff");
     if(saved && DIFFICULTIES[saved]) selectedDiff = saved;
     else selectedDiff = "mediumFull";
@@ -81,7 +109,7 @@ if(QUESTIONS.length === 0){
     document.querySelectorAll('.label-diff').forEach(l => l.style.display = "none");
     return;
   }
-  const baseKeys = ["easy","medium","hard","extreme","pvp"];
+  const baseKeys = ["free","easy","medium","hard","extreme","pvp"];
   baseKeys.forEach(key=>{
     const d = DIFFICULTIES[key];
     if(!d) return;
@@ -130,7 +158,7 @@ function startGame(name, diff){
   clearTimeout(pendingTimeout);
   const cfg = DIFFICULTIES[diff] || DIFFICULTIES.easy;
   let totalTime = cfg.time;
-  if(hardcoreMode) totalTime = Math.max(10, Math.round(totalTime/2));
+  if(hardcoreMode && totalTime > 0) totalTime = Math.max(10, Math.round(totalTime/2));
 
   S = {
     name, diff, cfg, totalTime,
@@ -186,8 +214,6 @@ function showScreen(id){
 function buildOptions(qIdx, hard){
   const q = QUESTIONS[qIdx];
   const qType = getQType(q);
-
-  /* Chỉ xử lý ABCD ở đây */
   if (qType !== "abcd") return [];
 
   const correctText = q.o[q.a];
@@ -230,9 +256,6 @@ function nextQuestion(){
   renderQuestion();
 }
 
-/* =========================================================
-   RENDER CÂU HỎI — ROUTER 3 LOẠI
-   ========================================================= */
 function renderQuestion(){
   const cur = S.current;
   const q = QUESTIONS[cur.qIndex];
@@ -240,7 +263,6 @@ function renderQuestion(){
   S.answered = false;
   S.questionNumber++;
 
-  /* Badge */
   const badge = $("qBadge");
   if(S.curseRemaining > 0){
     badge.textContent = "💀 LỜI NGUYỀN -x2 (còn " + S.curseRemaining + " câu)";
@@ -258,19 +280,14 @@ function renderQuestion(){
   const box = $("options");
   box.innerHTML = "";
   box.classList.remove("locked");
+  box.style.display = "block";
 
-  /* Xoá khu vực câu hỏi phụ (nếu có từ câu trước) */
   const oldExtra = $("qExtra");
   if(oldExtra) oldExtra.remove();
 
-  /* Router theo loại */
-  if (qType === "abcd") {
-    renderABCDQuestion(q, cur, box);
-  } else if (qType === "dungsai") {
-    renderDungSaiQuestion(q, cur, box);
-  } else if (qType === "tlngan") {
-    renderTLNganQuestion(q, cur, box);
-  }
+  if (qType === "abcd") renderABCDQuestion(q, cur, box);
+  else if (qType === "dungsai") renderDungSaiQuestion(q, cur, box);
+  else if (qType === "tlngan") renderTLNganQuestion(q, cur, box);
 
   $("feedback").textContent = "";
   $("feedback").className = "feedback";
@@ -281,7 +298,6 @@ function renderQuestion(){
   if(S.isPvP) scheduleBotsAnswer();
 }
 
-/* ===== RENDER ABCD ===== */
 function renderABCDQuestion(q, cur, box){
   cur.options.forEach((opt,i)=>{
     const btn = document.createElement("button");
@@ -299,12 +315,9 @@ function renderABCDQuestion(q, cur, box){
   });
 }
 
-/* ===== RENDER ĐÚNG/SAI ===== */
 function renderDungSaiQuestion(q, cur, box){
-  /* Tạo khung chứa 4 nhận định */
   box.style.display = "block";
   box.innerHTML = "";
-
   const wrap = document.createElement("div");
   wrap.id = "qExtra";
 
@@ -356,11 +369,9 @@ function renderDungSaiQuestion(q, cur, box){
   box.appendChild(wrap);
 }
 
-/* ===== RENDER TRẢ LỜI NGẮN ===== */
 function renderTLNganQuestion(q, cur, box){
   box.style.display = "block";
   box.innerHTML = "";
-
   const wrap = document.createElement("div");
   wrap.id = "qExtra";
 
@@ -392,11 +403,23 @@ function renderTLNganQuestion(q, cur, box){
   box.appendChild(wrap);
   setTimeout(()=>input.focus(), 100);
 }
+
 /* =========================================================
-   TIMER
+   TIMER — HỖ TRỢ CHẾ ĐỘ THOẢI MÁI (time = 0)
    ========================================================= */
 function startTimer(){
   clearInterval(S.timerId);
+
+  /* Chế độ thoải mái: ẩn timer, không đếm */
+  if(S.totalTime === 0){
+    const tw = $("timerWrap");
+    if(tw) tw.style.display = "none";
+    return;
+  }
+
+  const tw = $("timerWrap");
+  if(tw) tw.style.display = "flex";
+
   S.timeLeft = S.totalTime;
   paintTimer();
   S.timerId = setInterval(()=>{
@@ -415,6 +438,7 @@ function startTimer(){
 function paintTimer(){
   const p = Math.max(0, S.timeLeft / S.totalTime) * 100;
   const fill = $("timerFill");
+  if(!fill) return;
   fill.style.width = p + "%";
   fill.style.background = p>50 ? "linear-gradient(90deg,#22c55e,#4ade80)"
     : p>20 ? "linear-gradient(90deg,#f59e0b,#fbbf24)"
@@ -422,7 +446,6 @@ function paintTimer(){
   $("timerText").textContent = Math.ceil(S.timeLeft) + "s";
   $("timerText").style.color = p<=20 ? "#f87171" : "#94a3b8";
 }
-
 /* =========================================================
    XỬ LÝ TRẢ LỜI ABCD
    ========================================================= */
@@ -479,19 +502,21 @@ function handleAnswer(selected){
 
     if(S.curseRemaining <= 0 && Math.random() < 0.25) setTimeout(()=>showCursePopup(), 1000);
   }
-/* Hiện giải thích nếu có */
-const q = QUESTIONS[S.current.qIndex];
-if(q && q.explain){
-  const box = $("options");
-  const ex = document.createElement("div");
-  ex.className = "explain-box show" + (isCorrect ? "" : " wrong");
-  ex.innerHTML = '<b>💡 GIẢI THÍCH:</b> ' + q.explain;
-  box.appendChild(ex);
-}
+
+  /* ===== HIỆN GIẢI THÍCH CHO CÂU ABCD ===== */
+  const q = QUESTIONS[S.current.qIndex];
+  if(q && q.explain){
+    const box = $("options");
+    const ex = document.createElement("div");
+    ex.className = "explain-box show" + (isCorrect ? "" : " wrong");
+    ex.innerHTML = '<b>💡 GIẢI THÍCH:</b> ' + q.explain;
+    box.appendChild(ex);
+  }
+
   updateHud();
   updatePvpBoard();
 
-  const delay = isCorrect ? 1200 : 1900;
+  const delay = getDelayMs(isCorrect);
   clearTimeout(pendingTimeout);
   pendingTimeout = setTimeout(()=>{ if(S && !S.dead) nextQuestion(); }, delay);
 }
@@ -536,7 +561,6 @@ function selectDungSai(idx, chonDung, st, el){
   S.dsState.answered++;
   updateHud();
 
-  /* Khi trả lời hết tất cả nhận định */
   if(S.dsState.answered >= S.dsState.total){
     S.answered = true;
     clearInterval(S.timerId);
@@ -555,7 +579,6 @@ function selectDungSai(idx, chonDung, st, el){
     const ok = S.dsState.correct >= Math.ceil(S.dsState.total / 2);
     setFeedback(ok, `Hoàn thành! Đúng ${S.dsState.correct}/${S.dsState.total} ý` + (bonus ? " (+50đ)" : ""));
 
-    /* Hiện giải thích nếu có */
     const q = QUESTIONS[S.current.qIndex];
     if(q.explain){
       const box = $("options");
@@ -568,7 +591,7 @@ function selectDungSai(idx, chonDung, st, el){
     clearTimeout(pendingTimeout);
     pendingTimeout = setTimeout(()=>{
       if(S && !S.dead) nextQuestion();
-    }, 2200);
+    }, getDelayMs());
   }
 }
 
@@ -610,7 +633,6 @@ function submitTLN(q){
   }
   updateHud();
 
-  /* Hiện giải thích */
   if(q.explain){
     const box = $("options");
     const ex = document.createElement("div");
@@ -622,7 +644,7 @@ function submitTLN(q){
   clearTimeout(pendingTimeout);
   pendingTimeout = setTimeout(()=>{
     if(S && !S.dead) nextQuestion();
-  }, 2200);
+  }, getDelayMs(isCorrect));
 }
 
 /* =========================================================
@@ -636,7 +658,6 @@ function handleTimeout(){
   if (qType === "abcd") {
     handleAnswer(-1);
   } else if (qType === "dungsai") {
-    /* Tự động đánh dấu các ý chưa trả lời là sai */
     S.answered = true;
     q.statements.forEach((st, idx)=>{
       const el = document.querySelector('.ds-statement[data-idx="' + idx + '"]');
@@ -660,7 +681,7 @@ function handleTimeout(){
       box.appendChild(ex);
     }
     clearTimeout(pendingTimeout);
-    pendingTimeout = setTimeout(()=>{ if(S && !S.dead) nextQuestion(); }, 2200);
+    pendingTimeout = setTimeout(()=>{ if(S && !S.dead) nextQuestion(); }, getDelayMs());
   } else if (qType === "tlngan") {
     submitTLN(q);
   }
@@ -777,6 +798,12 @@ function useItem(key){
     setFeedback(true, "💰 +200 điểm!");
   }
   else if(key === "freezeTime"){
+    if(S.totalTime === 0){
+      setFeedback(false, "⏱️ Chế độ thoải mái không cần đóng băng giờ!"); 
+      S.inventory[key]--;
+      updateHud(); updateInventory();
+      return;
+    }
     S.timeLeft = Math.min(S.totalTime, S.timeLeft + 30);
     paintTimer(); S.inventory[key]--;
     setFeedback(true, "⏱️ +30 giây!");
@@ -1275,7 +1302,7 @@ $("btnReady").onclick = ()=>{
 
 function startOnlineAsHost(){
   if(!online || !online.isHost) return;
-  /* Chỉ lấy các câu ABCD để online chơi được (tránh câu Đ/S, TLN) */
+  /* Chỉ lấy câu ABCD cho online */
   const abcdIndexes = QUESTIONS.map((q,i)=>getQType(q)==="abcd" ? i : -1).filter(i=>i>=0);
   const list = shuffle([...abcdIndexes]).slice(0, 10);
   online.questions = list;
