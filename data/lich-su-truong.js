@@ -1,5 +1,5 @@
 /* =========================================================
-   DATA CÂU HỎI LỊCH SỬ - GIỮA KÌ 1 (Bản cập nhật)
+   DATA CÂU HỎI LỊCH SỬ - GIỮA KÌ 1 (Bản cập nhật v3)
    ========================================================= */
 window.ON_TAP_DATA = window.QUESTIONS = [];
 
@@ -109,7 +109,8 @@ window.ON_TAP_DATA.push(
     o: ["Mi-an-ma.", "Phi-líp-pin.", "Campuchia.", "Brunei."],
     a: 0,
     explain: "Năm 1997, Myanmar và Lào gia nhập ASEAN."
-  },
+  }
+);window.ON_TAP_DATA.push(
   {
     type: "abcd",
     q: "Một trong năm nước đã tham gia sáng lập Hiệp hội các quốc gia Đông Nam Á (ASEAN) vào năm 1967",
@@ -142,8 +143,8 @@ window.ON_TAP_DATA.push(
     type: "abcd",
     q: "Quốc gia nào sau đây trở thành thành viên thứ 11 của tổ chức ASEAN?",
     o: ["Việt Nam.", "Lào.", "Cam-pu-chia.", "Đông Ti-mo."],
-    a: 2,
-    explain: "Campuchia là thành viên thứ 10 của ASEAN (1999). Đông Timor chưa gia nhập."
+    a: 3,
+    explain: "Đông Ti-mo là thành viên thứ 11 của ASEAN (dự kiến), sau khi 10 nước hiện tại đã gia nhập."
   },
   {
     type: "abcd",
@@ -180,8 +181,7 @@ window.ON_TAP_DATA.push(
     a: 2,
     explain: "Giai đoạn 2015 đến nay, ASEAN thành lập và xây dựng Cộng đồng ASEAN."
   }
-);
-/* ===== PHẦN II: 6 CÂU ĐÚNG/SAI ===== */
+);/* ===== PHẦN II: 6 CÂU ĐÚNG/SAI ===== */
 window.ON_TAP_DATA.push(
   {
     type: "dungsai",
@@ -198,7 +198,7 @@ window.ON_TAP_DATA.push(
     q: "Câu 2: Đọc đoạn tư liệu sau: \"Hội nghị chấp nhận những điều kiện của Liên Xô về việc tham gia chiến tranh tiêu diệt quân phiệt Nhật, bao gồm: 1) Duy trì nguyên trạng và công nhận nền độc lập của Mông Cổ. 2) Trả lại cho Liên Xô những quyền lợi mà nước Nga bị mất sau Chiến tranh Nga - Nhật (1904 - 1905), như trả lại miền Nam đảo Xakhalin và quần đảo Curin, quốc tế hoá cảng Đại Liên (Trung Quốc), cho Liên Xô thuê cảng Lữ Thuận (Trung Quốc) làm căn cứ hải quân... 6) Phần còn lại của châu Á (Đông Nam Á, Tây Á, Nam Á...) vẫn thuộc phạm vi ảnh hưởng truyền thống của các nước phương Tây.\"",
     statements: [
       { text: "Đoạn tư liệu trên đề cập đến việc phân chia khu vực đóng quân và phạm vi ảnh hưởng của các cường quốc ở châu Âu và châu Á tại Hội nghị Ianta (tháng 2/1945).", answer: true },
-      { text: "Liên Xô có thể khôi phục \"quyền lợi mà nước Nga bị mất sau Chiến tranh Nga - Nhật (1904 - 1905)\" vì chấp nhận chia sẻ nghĩa vụ Đông minh.", answer: false },
+      { text: "Liên Xô có thể khôi phục \"quyền lợi mà nước Nga bị mất sau Chiến tranh Nga - Nhật (1904 - 1905)\" vì chấp nhận chia sẻ nghĩa vụ Đồng minh.", answer: true },
       { text: "Quyết định Đông Nam Á vẫn thuộc phạm vi ảnh hưởng truyền thống của các nước phương Tây có tác động tích cực đến phong trào giành độc lập khu vực này.", answer: false },
       { text: "Theo quyết định Hội nghị Ianta (tháng 2/1945), Mông Cổ vẫn là nước dân chủ nhân dân.", answer: true }
     ]
@@ -230,7 +230,7 @@ window.ON_TAP_DATA.push(
       { text: "Cụm từ \"hai hệ thống chính trị - xã hội đối lập\" được đề cập trong đoạn tư liệu trên là hệ thống tư bản chủ nghĩa và hệ thống xã hội chủ nghĩa.", answer: true },
       { text: "Sau Chiến tranh lạnh, tình hình quốc tế \"không phát triển một cách hòa bình, ổn định\" và có sự mâu thuẫn giữa các nước lớn xung quanh việc thiết lập trật tự thế giới mới.", answer: true },
       { text: "Một trong những mâu thuẫn mới xuất hiện sau Chiến tranh lạnh là mâu thuẫn dân tộc.", answer: true },
-      { text: "Đoạn tư liệu trên đề cập đến xu thế hòa bình, hợp tác và phát triển sau Chiến tranh lạnh.", answer: true }
+      { text: "Đoạn tư liệu trên đề cập đến xu thế hòa bình, hợp tác và phát triển sau Chiến tranh lạnh.", answer: false }
     ]
   },
   {
