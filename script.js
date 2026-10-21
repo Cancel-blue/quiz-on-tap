@@ -1,5 +1,5 @@
 /* =========================================================
-   SCRIPT.JS - Bản gộp đầy đủ (Đã xóa chèn câu sai)
+   SCRIPT.JS - Bản gộp đầy đủ (v7 - Đã xóa câu sai, fix URL)
    ========================================================= */
 
 const DIFFICULTIES = {
@@ -50,14 +50,12 @@ const MAX_ONLINE = 4;
 const MON = window.CURRENT_MON || "lich-su";
 let allQuestions = window.QUESTIONS || window.ON_TAP_DATA || [];
 
-// Lấy chế độ chơi từ bộ nhớ hoặc URL
+// Lấy chế độ chơi đồng bộ
 const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get("set")) {
-    sessionStorage.setItem("chosenSet", urlParams.get("set"));
-}
-const currentSet = sessionStorage.getItem("chosenSet") || "truong";
+const currentSet = urlParams.get("set") || sessionStorage.getItem("chosenSet") || "truong";
+sessionStorage.setItem("chosenSet", currentSet);
 
-// Lọc câu hỏi theo chế độ
+// Lọc câu hỏi
 let QUESTIONS = [];
 if (currentSet === "dungsai") {
     QUESTIONS = allQuestions.filter(q => q.type === "dungsai");
@@ -168,7 +166,9 @@ if(toggleEl){
     this.classList.toggle("on", hardcoreMode);
   };
 }
-
+/* =========================================================
+   BẮT ĐẦU GAME & RENDER CÂU HỎI
+   ========================================================= */
 $("btnStart").onclick = ()=>{
   const name = $("playerName").value.trim();
   if(!name){
@@ -272,16 +272,14 @@ function buildOptions(qIdx, hard){
 function nextQuestion(){
   if(!S || S.dead) return;
   
-  /* Đã xóa tính năng tự động chèn câu sai */
+  /* Đã xóa tính năng chèn câu sai ở đây */
 
   if(S.queue.length === 0){ endGame(); return; }
   const qi = S.queue.shift();
   S.current = { qIndex:qi, options: buildOptions(qi, S.cfg.hard), isReview:false };
   renderQuestion();
-                 }
-/* =========================================================
-   RENDER CÂU HỎI & XỬ LÝ TRẢ LỜI
-   ========================================================= */
+}
+
 function renderQuestion(){
   const cur = S.current;
   const q = QUESTIONS[cur.qIndex];
@@ -425,20 +423,17 @@ function renderTLNganQuestion(q, cur, box){
 
   box.appendChild(wrap);
   setTimeout(()=>input.focus(), 100);
-}
-
+     }
 /* =========================================================
-   TIMER
+   TIMER & XỬ LÝ ĐÁP ÁN
    ========================================================= */
 function startTimer(){
   clearInterval(S.timerId);
-
   if(S.totalTime === 0){
     const tw = $("timerWrap");
     if(tw) tw.style.display = "none";
     return;
   }
-
   const tw = $("timerWrap");
   if(tw) tw.style.display = "flex";
 
@@ -469,9 +464,7 @@ function paintTimer(){
   $("timerText").style.color = p<=20 ? "#f87171" : "#94a3b8";
 }
 
-/* =========================================================
-   XỬ LÝ ĐÁP ÁN
-   ========================================================= */
+/* ===== XỬ LÝ ABCD ===== */
 function handleAnswer(selected){
   if(!S || S.answered || S.dead) return;
   S.answered = true;
@@ -542,6 +535,7 @@ function handleAnswer(selected){
   pendingTimeout = setTimeout(()=>{ if(S && !S.dead) nextQuestion(); }, delay);
 }
 
+/* ===== XỬ LÝ ĐÚNG / SAI ===== */
 function selectDungSai(idx, chonDung, st, el){
   if(!S || S.answered || S.dead) return;
   if(el.classList.contains("locked")) return;
@@ -613,6 +607,7 @@ function selectDungSai(idx, chonDung, st, el){
   }
 }
 
+/* ===== XỬ LÝ TRẢ LỜI NGẮN ===== */
 function submitTLN(q){
   if(!S || S.answered || S.dead) return;
   const input = $("tlInput");
@@ -661,7 +656,9 @@ function submitTLN(q){
     if(S && !S.dead) nextQuestion();
   }, getDelayMs(isCorrect));
 }
-
+/* =========================================================
+   XỬ LÝ KHI HẾT GIỜ
+   ========================================================= */
 function handleTimeout(){
   if(!S || S.answered || S.dead) return;
   const q = QUESTIONS[S.current.qIndex];
@@ -699,6 +696,9 @@ function handleTimeout(){
   }
 }
 
+/* =========================================================
+   FEEDBACK + HUD
+   ========================================================= */
 function setFeedback(ok, text){
   const f = $("feedback");
   f.textContent = text;
@@ -723,9 +723,10 @@ function updateProgress(){
   const done = QUESTIONS.length - S.queue.length;
   $("progFill").style.width = (done / QUESTIONS.length * 100) + "%";
   $("progTxt").textContent = `${Math.min(done+1, QUESTIONS.length)}/${QUESTIONS.length}`;
-   }
+}
+
 /* =========================================================
-   VẬT PHẨM & PVP BOTS
+   VẬT PHẨM
    ========================================================= */
 function tryDropItem(){
   if(Math.random() > 0.7) return;
@@ -842,6 +843,9 @@ function useItem(key){
   updateInventory();
 }
 
+/* =========================================================
+   PVP BOTS
+   ========================================================= */
 function scheduleBotsAnswer(){
   const speedMult = getBotSpeedMult();
   S.bots.forEach((bot, idx)=>{
@@ -883,10 +887,9 @@ function updatePvpBoard(){
     el.innerHTML = `<span class="ava">${bot.ava}</span><span class="nm">${bot.name}</span><span class="sc">${bot.score}</span>`;
     board.appendChild(el);
   });
-}
-
+     }
 /* =========================================================
-   KẾT THÚC SOLO / PVP
+   KẾT THÚC GAME (END GAME)
    ========================================================= */
 function endGame(){
   if(!S) return;
@@ -979,18 +982,15 @@ $("btnQuit").onclick = ()=>{
     showScreen("screenStart");
   }
 };
-$("btnHome").onclick = ()=>{
-  if(online) leaveOnline();
-  S = null;
-  window.location.href = "index.html";
-};
+$("btnHome").onclick = ()=>{ if(online) leaveOnline(); S = null; window.location.href = "index.html"; };
 $("btnReplay").onclick = ()=>{
   if(online){ leaveOnline(); showScreen("screenStart"); return; }
   if(!S){ showScreen("screenStart"); return; }
   startGame(S.name, S.diff);
 };
+
 /* =========================================================
-   ONLINE PEERJS - TẠO PHÒNG VÀ KẾT NỐI
+   ONLINE PEERJS
    ========================================================= */
 function genRoomCode(){
   const c = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -1000,10 +1000,7 @@ function genRoomCode(){
 }
 
 $("btnOnlineMode").onclick = ()=>{
-  if(QUESTIONS.length === 0){
-    alert("Chưa có câu hỏi cho môn này!");
-    return;
-  }
+  if(QUESTIONS.length === 0){ alert("Chưa có câu hỏi cho môn này!"); return; }
   const name = $("playerName").value.trim();
   if(!name){
     $("playerName").classList.add("err");
@@ -1023,13 +1020,11 @@ $("btnOnlineMode").onclick = ()=>{
 
 $("btnModeCreate").onclick = function(){
   this.classList.add("on"); $("btnModeJoin").classList.remove("on");
-  $("lobbyCreate").style.display = "block";
-  $("lobbyJoin").style.display = "none";
+  $("lobbyCreate").style.display = "block"; $("lobbyJoin").style.display = "none";
 };
 $("btnModeJoin").onclick = function(){
   this.classList.add("on"); $("btnModeCreate").classList.remove("on");
-  $("lobbyJoin").style.display = "block";
-  $("lobbyCreate").style.display = "none";
+  $("lobbyJoin").style.display = "block"; $("lobbyCreate").style.display = "none";
   $("inputRoomCode").focus();
 };
 
@@ -1044,27 +1039,18 @@ $("btnDoCreate").onclick = ()=>{
   const code = genRoomCode();
   const peer = new Peer("lvnm-" + code, { debug: 1 });
   peer.on("open", ()=>{
-    online.peer = peer;
-    online.isHost = true;
-    online.roomCode = code;
-    online.myUid = "host";
+    online.peer = peer; online.isHost = true; online.roomCode = code; online.myUid = "host";
     online.players = { "host": { name: online.myName, ready: true, score: 0, isHost: true } };
     online.ready = true;
     $("roomCodeShow").textContent = code;
     $("roomTitle").textContent = "👑 PHÒNG CỦA BẠN";
     showScreen("screenRoom");
-    renderOnlinePlayers();
-    updateReadyBtn();
+    renderOnlinePlayers(); updateReadyBtn();
     peer.on("connection", conn=>setupHostConnection(conn));
   });
   peer.on("error", err=>{
-    if(err.type === "unavailable-id"){
-      try{ peer.destroy() }catch(e){}
-      $("btnDoCreate").click();
-    } else {
-      alert("Lỗi kết nối: " + err.type);
-      showScreen("screenLobby");
-    }
+    if(err.type === "unavailable-id"){ try{ peer.destroy() }catch(e){} $("btnDoCreate").click(); }
+    else { alert("Lỗi kết nối: " + err.type); showScreen("screenLobby"); }
   });
 };
 
@@ -1072,58 +1058,34 @@ $("btnDoJoin").onclick = ()=>{
   if(!online) return;
   const code = $("inputRoomCode").value.trim().toUpperCase();
   if(code.length !== 4){
-    $("inputRoomCode").style.borderColor = "#ef4444";
-    $("inputRoomCode").focus();
-    setTimeout(()=>$("inputRoomCode").style.borderColor = "#2b3a55", 500);
-    return;
+    $("inputRoomCode").style.borderColor = "#ef4444"; $("inputRoomCode").focus();
+    setTimeout(()=>$("inputRoomCode").style.borderColor = "#2b3a55", 500); return;
   }
   const peer = new Peer({ debug: 1 });
   peer.on("open", ()=>{
-    online.peer = peer;
-    online.isHost = false;
-    online.roomCode = code;
-    online.myUid = "p_" + Date.now();
+    online.peer = peer; online.isHost = false; online.roomCode = code; online.myUid = "p_" + Date.now();
     const conn = peer.connect("lvnm-" + code, { reliable: true });
     online.hostConn = conn;
-    $("roomCodeShow").textContent = code;
-    $("roomTitle").textContent = "🎮 PHÒNG CHỜ";
+    $("roomCodeShow").textContent = code; $("roomTitle").textContent = "🎮 PHÒNG CHỜ";
     showScreen("screenRoom");
     $("onlinePlayerList").innerHTML = '<div class="waiting"><i></i><i></i><i></i><span>Đang kết nối...</span></div>';
-    conn.on("open", ()=>{
-      conn.send({ type:"hello", uid: online.myUid, name: online.myName });
-    });
+    conn.on("open", ()=>{ conn.send({ type:"hello", uid: online.myUid, name: online.myName }); });
     conn.on("data", handleGuestData);
-    conn.on("close", ()=>{
-      alert("Chủ phòng đã rời! Phòng tan.");
-      online = null;
-      showScreen("screenStart");
-    });
+    conn.on("close", ()=>{ alert("Chủ phòng đã rời! Phòng tan."); online = null; showScreen("screenStart"); });
   });
-  peer.on("error", ()=>{
-    alert("Không tìm thấy phòng " + code + "!");
-    showScreen("screenLobby");
-  });
+  peer.on("error", ()=>{ alert("Không tìm thấy phòng " + code + "!"); showScreen("screenLobby"); });
 };
 
 function setupHostConnection(conn){
   conn.on("open", ()=>{
-    if(online.connections.length >= MAX_ONLINE-1){
-      conn.send({ type:"full" });
-      setTimeout(()=>conn.close(), 500);
-      return;
-    }
+    if(online.connections.length >= MAX_ONLINE-1){ conn.send({ type:"full" }); setTimeout(()=>conn.close(), 500); return; }
     online.connections.push(conn);
   });
   conn.on("data", data=>handleHostData(conn, data));
   conn.on("close", ()=>{
     online.connections = online.connections.filter(c=>c !== conn);
-    Object.keys(online.players).forEach(uid=>{
-      if(uid !== "host" && online.players[uid].conn === conn){
-        delete online.players[uid];
-      }
-    });
-    broadcastPlayers();
-    renderOnlinePlayers();
+    Object.keys(online.players).forEach(uid=>{ if(uid !== "host" && online.players[uid].conn === conn){ delete online.players[uid]; } });
+    broadcastPlayers(); renderOnlinePlayers();
   });
 }
 
@@ -1132,23 +1094,15 @@ function handleHostData(conn, data){
   switch(data.type){
     case "hello":
       online.players[data.uid] = { name: data.name, ready: false, score: 0, isHost: false, conn: conn };
-      broadcastPlayers();
-      renderOnlinePlayers();
-      break;
+      broadcastPlayers(); renderOnlinePlayers(); break;
     case "ready":
-      if(online.players[data.uid]){
-        online.players[data.uid].ready = data.ready;
-        broadcastPlayers();
-        renderOnlinePlayers();
-        updateReadyBtn();
-      }
+      if(online.players[data.uid]){ online.players[data.uid].ready = data.ready; broadcastPlayers(); renderOnlinePlayers(); updateReadyBtn(); }
       break;
     case "answer":
       if(online.players[data.uid]){
         if(data.correct) online.players[data.uid].score += data.points;
         broadcast({ type:"scores", scores: getScoresObj() });
-        renderOnlinePlayers();
-        renderOnlinePvpBoard();
+        renderOnlinePlayers(); renderOnlinePvpBoard();
       }
       break;
   }
@@ -1157,41 +1111,29 @@ function handleHostData(conn, data){
 function handleGuestData(data){
   if(!online) return;
   switch(data.type){
-    case "full":
-      alert("Phòng đã đầy!");
-      try{ online.peer.destroy(); }catch(e){}
-      online = null;
-      showScreen("screenStart");
-      break;
-    case "players":
-      online.players = data.players;
-      renderOnlinePlayers();
-      updateReadyBtn();
-      break;
+    case "full": alert("Phòng đã đầy!"); try{ online.peer.destroy(); }catch(e){} online = null; showScreen("screenStart"); break;
+    case "players": online.players = data.players; renderOnlinePlayers(); updateReadyBtn(); break;
+    case "start": online.questions = data.questions; online.started = true; online.qIndex = -1; online.myAnswered = false;
+      $("hudName").textContent = online.myName; $("avatar").textContent = online.myName.charAt(0).toUpperCase();
+      $("pvpBoard").style.display = "grid"; $("invBar").style.display = "none"; $("effectBadges").style.display = "none";
+      showScreen("screenQuiz"); break;
+    case "question": online.qIndex = data.index; online.currentShuffled = data.shuffled; online.myAnswered = false; online.myChoice = -1; renderOnlineQuestion(data); break;
     case "scores":
-      Object.keys(data.scores).forEach(uid=>{
-        if(online.players[uid]) online.players[uid].score = data.scores[uid];
-      });
-      renderOnlinePlayers();
-      renderOnlinePvpBoard();
-      break;
+      Object.keys(data.scores).forEach(uid=>{ if(online.players[uid]) online.players[uid].score = data.scores[uid]; });
+      renderOnlinePlayers(); renderOnlinePvpBoard(); break;
+    case "end": showOnlineEnd(data.ranking); break;
   }
 }
 
 function broadcast(data){
   if(!online || !online.isHost) return;
-  online.connections.forEach(c=>{
-    try{ c.send(data) }catch(e){}
-  });
+  online.connections.forEach(c=>{ try{ c.send(data) }catch(e){} });
 }
 
 function broadcastPlayers(){
   if(!online || !online.isHost) return;
   const clean = {};
-  Object.keys(online.players).forEach(uid=>{
-    const p = online.players[uid];
-    clean[uid] = { name:p.name, ready:p.ready, score:p.score, isHost:p.isHost };
-  });
+  Object.keys(online.players).forEach(uid=>{ const p = online.players[uid]; clean[uid] = { name:p.name, ready:p.ready, score:p.score, isHost:p.isHost }; });
   broadcast({ type:"players", players: clean });
 }
 
@@ -1203,30 +1145,19 @@ function getScoresObj(){
 
 function renderOnlinePlayers(){
   if(!online) return;
-  const list = $("onlinePlayerList");
-  const uids = Object.keys(online.players);
+  const list = $("onlinePlayerList"); const uids = Object.keys(online.players);
   $("onlineCount").textContent = uids.length + "/" + MAX_ONLINE;
-  uids.sort((a,b)=>{
-    if(online.players[a].isHost) return -1;
-    if(online.players[b].isHost) return 1;
-    return 0;
-  });
+  uids.sort((a,b)=>{ if(online.players[a].isHost) return -1; if(online.players[b].isHost) return 1; return 0; });
   list.innerHTML = "";
   uids.forEach(uid=>{
     const p = online.players[uid];
-    const el = document.createElement("div");
-    el.className = "online-player-item";
-    if(uid === online.myUid) el.classList.add("me");
-    if(p.ready) el.classList.add("ready");
-    if(p.isHost) el.classList.add("host");
+    const el = document.createElement("div"); el.className = "online-player-item";
+    if(uid === online.myUid) el.classList.add("me"); if(p.ready) el.classList.add("ready"); if(p.isHost) el.classList.add("host");
     el.innerHTML = `
       <div class="online-player-ava">${p.name.charAt(0).toUpperCase()}</div>
       <div class="online-player-info">
         <div class="online-player-name">${p.name}${uid===online.myUid?" (Bạn)":""}</div>
-        <div class="online-player-tags">
-          ${p.isHost?'<span class="tg host">👑 CHỦ PHÒNG</span>':''}
-          ${p.ready?'<span class="tg ready">✔ SẴN SÀNG</span>':'<span class="tg wait">⏳ CHỜ</span>'}
-        </div>
+        <div class="online-player-tags">${p.isHost?'<span class="tg host">👑 CHỦ PHÒNG</span>':''}${p.ready?'<span class="tg ready">✔ SẴN SÀNG</span>':'<span class="tg wait">⏳ CHỜ</span>'}</div>
       </div>
       <div class="online-player-score">${p.score || 0}</div>
     `;
@@ -1238,39 +1169,131 @@ function updateReadyBtn(){
   if(!online) return;
   const btn = $("btnReady");
   if(online.isHost){
-    const readyCount = Object.values(online.players).filter(p=>p.ready).length;
-    const total = Object.keys(online.players).length;
-    if(readyCount < 2 || total < 2){
-      btn.disabled = true;
-      btn.className = "btn-ready off";
-      btn.textContent = total < 2 ? "ĐANG CHỜ NGƯỜI CHƠI..." : "CẦN ≥2 NGƯỜI SẴN SÀNG";
-    } else {
-      btn.disabled = false;
-      btn.className = "btn-ready";
-      btn.textContent = `🚀 BẮT ĐẦU (${readyCount}/${total})`;
-    }
+    const readyCount = Object.values(online.players).filter(p=>p.ready).length; const total = Object.keys(online.players).length;
+    if(readyCount < 2 || total < 2){ btn.disabled = true; btn.className = "btn-ready off"; btn.textContent = total < 2 ? "ĐANG CHỜ NGƯỜI CHƠI..." : "CẦN ≥2 NGƯỜI SẴN SÀNG"; }
+    else { btn.disabled = false; btn.className = "btn-ready"; btn.textContent = `🚀 BẮT ĐẦU (${readyCount}/${total})`; }
   } else {
     btn.disabled = false;
-    if(online.ready){
-      btn.className = "btn-ready";
-      btn.textContent = "✔ ĐÃ SẴN SÀNG";
-    } else {
-      btn.className = "btn-ready off";
-      btn.textContent = "CHƯA SẴN SÀNG";
-    }
+    if(online.ready){ btn.className = "btn-ready"; btn.textContent = "✔ ĐÃ SẴN SÀNG"; }
+    else { btn.className = "btn-ready off"; btn.textContent = "CHƯA SẴN SÀNG"; }
   }
 }
 
 $("btnReady").onclick = ()=>{
   if(!online) return;
-  if(online.isHost){
-    if($("btnReady").disabled) return;
-    startOnlineAsHost();
-  } else {
-    online.ready = !online.ready;
-    if(online.hostConn && online.hostConn.open){
-      online.hostConn.send({ type:"ready", uid: online.myUid, ready: online.ready });
-    }
-    updateReadyBtn();
-  }
+  if(online.isHost){ if($("btnReady").disabled) return; startOnlineAsHost(); }
+  else { online.ready = !online.ready; if(online.hostConn && online.hostConn.open){ online.hostConn.send({ type:"ready", uid: online.myUid, ready: online.ready }); } updateReadyBtn(); }
 };
+
+function startOnlineAsHost(){
+  if(!online || !online.isHost) return;
+  const abcdIndexes = QUESTIONS.map((q,i)=>getQType(q)==="abcd" ? i : -1).filter(i=>i>=0);
+  const list = shuffle([...abcdIndexes]).slice(0, 10);
+  online.questions = list; online.qIndex = -1; online.started = true;
+  broadcast({ type:"start", questions: list });
+  $("hudName").textContent = online.myName; $("avatar").textContent = online.myName.charAt(0).toUpperCase();
+  $("pvpBoard").style.display = "grid"; $("invBar").style.display = "none"; $("effectBadges").style.display = "none";
+  showScreen("screenQuiz");
+  setTimeout(()=>sendNextOnlineQuestion(), 800);
+}
+
+function sendNextOnlineQuestion(){
+  if(!online || !online.isHost) return;
+  online.qIndex++;
+  if(online.qIndex >= online.questions.length){
+    const ranking = getRanking(); broadcast({ type:"end", ranking: ranking }); showOnlineEnd(ranking); return;
+  }
+  const qi = online.questions[online.qIndex]; const q = QUESTIONS[qi];
+  let shuffled = q.o.map((t,i)=>({ text:t, correct:i===q.a }));
+  shuffled = shuffle(shuffled);
+  online.currentShuffled = shuffled; online.myAnswered = false; online.myChoice = -1;
+  broadcast({ type:"question", index: online.qIndex, qi: qi, shuffled: shuffled });
+  renderOnlineQuestion({ index: online.qIndex, qi: qi, shuffled: shuffled });
+}
+
+function renderOnlineQuestion(data){
+  const q = QUESTIONS[data.qi]; const opts = data.shuffled;
+  $("qText").textContent = q.q; $("qBadge").textContent = `CÂU ${data.index+1}/${online.questions.length}`; $("qBadge").className = "badge";
+  const box = $("options"); box.innerHTML = ""; box.style.display = "block"; box.classList.remove("locked");
+  opts.forEach((opt, i)=>{
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "option";
+    const letter = document.createElement("span"); letter.className = "letter"; letter.textContent = "ABCD"[i];
+    const txt = document.createElement("span"); txt.className = "otext"; txt.textContent = opt.text;
+    btn.append(letter, txt); btn.onclick = ()=>handleOnlineAnswer(i); box.appendChild(btn);
+  });
+  $("feedback").textContent = ""; $("feedback").className = "feedback";
+  $("progFill").style.width = ((data.index+1) / online.questions.length * 100) + "%"; $("progTxt").textContent = `${data.index+1}/${online.questions.length}`;
+  renderOnlinePvpBoard();
+  const totalTime = hardcoreMode ? 15 : 30;
+  S = { totalTime, timeLeft: totalTime, timerId: null, dead: false, answered: false, onTimeUp: ()=>handleOnlineAnswer(-1) };
+  startTimer();
+}
+
+function handleOnlineAnswer(idx){
+  if(!online || online.myAnswered) return;
+  online.myAnswered = true; online.myChoice = idx;
+  clearInterval(S.timerId);
+  const opts = online.currentShuffled; const correctIdx = opts.findIndex(o=>o.correct); const isCorrect = (idx === correctIdx);
+  const btns = [...$("options").children]; $("options").classList.add("locked");
+  if(isCorrect){ btns[correctIdx].classList.add("correct"); setFeedback(true, "✅ Chính xác! +100 điểm"); }
+  else { if(idx >= 0) btns[idx].classList.add("wrong"); btns[correctIdx].classList.add("correct"); setFeedback(false, "❌ Sai rồi! Đáp án: " + "ABCD"[correctIdx]); }
+  if(online.players[online.myUid] && isCorrect) online.players[online.myUid].score = (online.players[online.myUid].score || 0) + 100;
+  renderOnlinePvpBoard();
+  if(online.isHost){
+    broadcast({ type:"scores", scores: getScoresObj() });
+    clearTimeout(pendingTimeout); pendingTimeout = setTimeout(()=>sendNextOnlineQuestion(), 2000);
+  } else {
+    if(online.hostConn && online.hostConn.open) online.hostConn.send({ type:"answer", uid: online.myUid, correct: isCorrect, points: 100 });
+  }
+}
+
+function renderOnlinePvpBoard(){
+  if(!online) return;
+  const board = $("pvpBoard"); board.innerHTML = "";
+  const uids = Object.keys(online.players).sort((a,b)=>(online.players[b].score||0) - (online.players[a].score||0));
+  uids.forEach(uid=>{
+    const p = online.players[uid]; const el = document.createElement("div"); el.className = "pvp-player";
+    if(uid === online.myUid) el.classList.add("me");
+    el.innerHTML = `<span class="ava">${p.name.charAt(0).toUpperCase()}</span><span class="nm">${p.name}</span><span class="sc">${p.score || 0}</span>`;
+    board.appendChild(el);
+  });
+}
+
+function getRanking(){
+  const arr = Object.keys(online.players).map(uid=>({ name: online.players[uid].name, score: online.players[uid].score || 0, isMe: uid === online.myUid }));
+  arr.sort((a,b)=>b.score - a.score);
+  return arr;
+}
+
+function showOnlineEnd(ranking){
+  if(!online) return;
+  if(!ranking || ranking.length === 0){ leaveOnline(); showScreen("screenStart"); return; }
+  const myEntry = ranking.find(r => r.name === online.myName); const myRank = ranking.findIndex(r => r.name === online.myName) + 1; const myScore = myEntry ? myEntry.score : 0;
+  let title = "HOÀN THÀNH!";
+  if(myRank === 1) title = "🏆 VÔ ĐỊCH!"; else if(myRank === 2) title = "🥈 Á QUÂN!"; else if(myRank === 3) title = "🥉 HẠNG 3!"; else if(myRank > 0) title = "😢 HẠNG " + myRank;
+  $("endTitle").textContent = title; $("endName").textContent = `Phòng ${online.roomCode} • ${ranking.length} người chơi`;
+  $("endScore").textContent = myScore.toLocaleString("vi-VN");
+  $("stCorrect").textContent = "—"; $("stWrong").textContent = "—"; $("stAcc").textContent = "—"; $("stStreak").textContent = myRank > 0 ? "#" + myRank : "—";
+  const list = $("wrongList"); list.innerHTML = "<h3>🏆 BẢNG XẾP HẠNG</h3>";
+  ranking.forEach((r, i)=>{
+    const medal = i===0?"🥇":i===1?"🥈":i===2?"🥉":"#"+(i+1);
+    const d = document.createElement("div"); d.className = "wrong-item"; d.style.borderLeftColor = r.isMe ? "#38bdf8" : "#94a3b8";
+    d.innerHTML = `<div class="q" style="color:${r.isMe?'#7dd3fc':'#cbd5e1'}">${medal} ${r.name}${r.isMe?" (Bạn)":""}</div><div class="a" style="color:#38bdf8;font-size:15px;font-weight:900">${r.score.toLocaleString("vi-VN")} điểm</div>`;
+    list.appendChild(d);
+  });
+  showScreen("screenEnd");
+}
+
+$("btnLeaveRoom").onclick = ()=>{ if(!online) return; if(!confirm("Rời phòng?")) return; leaveOnline(); showScreen("screenStart"); };
+
+function leaveOnline(){
+  if(!online) return;
+  if(online.isHost && online.connections){ online.connections.forEach(c=>{ try{ c.send({ type:"end", ranking:[] }) }catch(e){} try{ c.close() }catch(e){} }); }
+  if(online.peer){ try{ online.peer.destroy() }catch(e){} }
+  online = null;
+}
+
+window.addEventListener("beforeunload", e=>{
+  if(online) leaveOnline();
+  if(S && !S.dead && S.questionNumber > 0 && !online){ e.preventDefault(); e.returnValue = ""; }
+});
