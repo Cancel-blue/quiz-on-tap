@@ -58,6 +58,8 @@ sessionStorage.setItem("chosenSet", currentSet);
 let QUESTIONS = [];
 if (currentSet === "dungsai") {
     QUESTIONS = allQuestions.filter(q => q.type === "dungsai");
+} else if (currentSet === "tlngan") {
+    QUESTIONS = allQuestions.filter(q => q.type === "tlngan");
 } else {
     QUESTIONS = allQuestions.filter(q => q.type === "abcd");
 }
