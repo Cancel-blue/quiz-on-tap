@@ -24,7 +24,7 @@
         <small style="display:block;font-size:12px;font-weight:600;opacity:.9;margin-top:4px">25 câu ABCD • 5 mức độ</small>
       </button>
 
-      <!-- NÚT 2: TRẮC NGHIỆM ĐÚNG/SAI (Đã tách riêng) -->
+      <!-- NÚT 2: TRẮC NGHIỆM ĐÚNG/SAI -->
       <button class="btn-primary" onclick="chonBoDe('dungsai')"
               style="background:linear-gradient(90deg,#3b82f6,#2563eb);padding:22px 16px">
         ✅ TRẮC NGHIỆM ĐÚNG/SAI
@@ -94,6 +94,7 @@
       <span>NHẬP TÊN CỦA BẠN</span>
       <input id="playerName" type="text" maxlength="20" placeholder="VD: Nguyễn Văn A" autocomplete="off">
     </label>
+    
     <div id="hoaCustomUI" style="display:none">
       <div class="hoa-warning">
         <span class="icon">⚠️</span>
@@ -121,6 +122,7 @@
         </a>
       </div>
     </div>
+
     <div id="defaultUI">
       <p class="label-diff">CHỌN MỨC ĐỘ</p>
       <div class="diff-grid" id="diffGrid"></div>
@@ -153,6 +155,7 @@
     <p class="foot">Chúc bạn chinh phục được toàn bộ câu hỏi!</p>
   </div>
 </section>
+
 <section id="screenQuiz" class="screen">
   <div class="card">
     <div class="topbar">
@@ -255,6 +258,7 @@
     </p>
   </div>
 </section>
+
 </div>
 <script>
 /* ===== BIẾN TOÀN CỤC ===== */
@@ -269,28 +273,20 @@ function hienThiManHinh(id){
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
-/* ===== CHỌN BỘ ĐỀ (Đã sửa lỗi đồng bộ) ===== */
+/* ===== CHỌN BỘ ĐỀ (Ép tải lại trang để lọc data) ===== */
 function chonBoDe(set){
   sessionStorage.setItem("chosenSet", set);
   const url = new URL(window.location.href);
   url.searchParams.set("set", set);
-  window.history.replaceState({}, '', url);
-  
-  if(set === "full"){
-    hienThiManHinh("screenChooseLevelFull");
-  } else {
-    hienThiManHinh("screenStart");
-  }
+  window.location.href = url.toString(); // LỆNH QUAN TRỌNG: Ép tải lại trang
 }
 
-/* ===== QUAY LẠI (Đã sửa lỗi xoá bộ nhớ tạm) ===== */
+/* ===== QUAY LẠI (Xoá bộ nhớ, ép tải lại trang) ===== */
 function quayLaiChonSet(){
   sessionStorage.removeItem("chosenSet");
   const url = new URL(window.location.href);
   url.searchParams.delete("set");
-  window.history.replaceState({}, '', url);
-  
-  hienThiManHinh("screenChooseSet");
+  window.location.href = url.toString(); // Ép tải lại trang
 }
 
 /* ===== TOGGLE MENU HÓA ===== */
@@ -346,14 +342,16 @@ document.addEventListener("DOMContentLoaded", ()=>{
   const title = document.getElementById("chooseSetTitle");
   if(title) title.textContent = info.icon + " " + info.name;
 
-  /* Điều hướng màn hình dựa vào URL hoặc Môn */
-  if(setFromUrl){
-    hienThiManHinh("screenStart");
+  /* Điều hướng màn hình thông minh */
+  if (setFromUrl === "full") {
+    hienThiManHinh("screenChooseLevelFull"); // Vào thẳng màn chọn đề Full
+  } else if (setFromUrl) {
+    hienThiManHinh("screenStart"); // Các chế độ khác (truong, dungsai) -> Màn nhập tên
     const savedDiff = sessionStorage.getItem("chosenDiff");
     const savedDe = sessionStorage.getItem("chosenDe");
     if(savedDiff) selectedFullDiff = savedDiff;
     if(savedDe) selectedDeFull = savedDe;
-  } else if(mon !== "lich-su"){
+  } else if (mon !== "lich-su") {
     hienThiManHinh("screenStart");
   } else {
     hienThiManHinh("screenChooseSet");
@@ -449,7 +447,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
   if(set === "full"){
     dataPath = "data/" + mon + "-full-" + de + ".js";
   } else {
-    // Cả chế độ 'truong' và 'dungsai' đều dùng chung file data này
     dataPath = "data/" + mon + "-truong.js";
   }
 
