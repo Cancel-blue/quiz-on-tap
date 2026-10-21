@@ -1,6 +1,5 @@
 /* =========================================================
-   SCRIPT.JS - Bản gộp đầy đủ (v6)
-   Hỗ trợ: ABCD + Đúng/Sai + Trả lời ngắn + Delay + Online
+   SCRIPT.JS - Bản gộp đầy đủ (Đã xóa chèn câu sai)
    ========================================================= */
 
 const DIFFICULTIES = {
@@ -63,7 +62,6 @@ let QUESTIONS = [];
 if (currentSet === "dungsai") {
     QUESTIONS = allQuestions.filter(q => q.type === "dungsai");
 } else {
-    // Chế độ thường (truong) chỉ lấy câu ABCD
     QUESTIONS = allQuestions.filter(q => q.type === "abcd");
 }
 
@@ -77,9 +75,7 @@ function shuffle(a){
   return a;
 }
 
-/* ===== DELAY SLIDER (5s / 10s / 20s) ===== */
 const DELAY_OPTIONS = [5, 10, 20];
-/* ===== TỐC ĐỘ BOT PVP ===== */
 const BOT_SPEED_OPTIONS = [
   { label:"Rất chậm", mult:2.0 },
   { label:"Vừa",      mult:1.0 },
@@ -87,6 +83,7 @@ const BOT_SPEED_OPTIONS = [
   { label:"Siêu nhanh", mult:0.3 }
 ];
 let botSpeedChoice = 1;
+let delayChoice = 0;
 
 function initBotSpeedSlider(){
   const slider = $("botSpeedSlider");
@@ -103,7 +100,6 @@ initBotSpeedSlider();
 function getBotSpeedMult(){
   return BOT_SPEED_OPTIONS[botSpeedChoice].mult;
 }
-let delayChoice = 0;
 
 function initDelaySlider(){
   const slider = $("delaySlider");
@@ -122,7 +118,6 @@ function getDelayMs(isCorrect){
   return (isCorrect ? sec * 0.5 : sec) * 1000;
 }
 
-/* Nhận diện loại câu */
 function getQType(q) {
   if (!q) return "abcd";
   if (q.type && ["abcd","dungsai","tlngan"].includes(q.type)) return q.type;
@@ -173,9 +168,7 @@ if(toggleEl){
     this.classList.toggle("on", hardcoreMode);
   };
 }
-/* =========================================================
-   BẮT ĐẦU GAME
-   ========================================================= */
+
 $("btnStart").onclick = ()=>{
   const name = $("playerName").value.trim();
   if(!name){
@@ -248,9 +241,6 @@ function showScreen(id){
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
-/* =========================================================
-   BUILD OPTIONS + RENDER CÂU HỎI
-   ========================================================= */
 function buildOptions(qIdx, hard){
   const q = QUESTIONS[qIdx];
   const qType = getQType(q);
@@ -281,21 +271,17 @@ function buildOptions(qIdx, hard){
 
 function nextQuestion(){
   if(!S || S.dead) return;
-  if(S.pendingReview){
-    S.pendingReview = false;
-    if(S.wrongPool.size > 0){
-      const arr = [...S.wrongPool];
-      const qi = arr[Math.floor(Math.random()*arr.length)];
-      S.current = { qIndex:qi, options: buildOptions(qi, S.cfg.hard), isReview:true };
-      renderQuestion(); return;
-    }
-  }
+  
+  /* Đã xóa tính năng tự động chèn câu sai */
+
   if(S.queue.length === 0){ endGame(); return; }
   const qi = S.queue.shift();
   S.current = { qIndex:qi, options: buildOptions(qi, S.cfg.hard), isReview:false };
   renderQuestion();
-}
-
+                 }
+/* =========================================================
+   RENDER CÂU HỎI & XỬ LÝ TRẢ LỜI
+   ========================================================= */
 function renderQuestion(){
   const cur = S.current;
   const q = QUESTIONS[cur.qIndex];
@@ -307,9 +293,6 @@ function renderQuestion(){
   if(S.curseRemaining > 0){
     badge.textContent = "💀 LỜI NGUYỀN -x2 (còn " + S.curseRemaining + " câu)";
     badge.className = "badge curse";
-  } else if(cur.isReview){
-    badge.textContent = "🔁 ÔN LẠI CÂU ĐÃ SAI";
-    badge.className = "badge review";
   } else {
     badge.textContent = "CÂU HỎI";
     badge.className = "badge";
@@ -445,12 +428,11 @@ function renderTLNganQuestion(q, cur, box){
 }
 
 /* =========================================================
-   TIMER — HỖ TRỢ CHẾ ĐỘ THOẢI MÁI (time = 0)
+   TIMER
    ========================================================= */
 function startTimer(){
   clearInterval(S.timerId);
 
-  /* Chế độ thoải mái: ẩn timer, không đếm */
   if(S.totalTime === 0){
     const tw = $("timerWrap");
     if(tw) tw.style.display = "none";
@@ -486,8 +468,9 @@ function paintTimer(){
   $("timerText").textContent = Math.ceil(S.timeLeft) + "s";
   $("timerText").style.color = p<=20 ? "#f87171" : "#94a3b8";
 }
+
 /* =========================================================
-   XỬ LÝ TRẢ LỜI ABCD
+   XỬ LÝ ĐÁP ÁN
    ========================================================= */
 function handleAnswer(selected){
   if(!S || S.answered || S.dead) return;
@@ -510,14 +493,13 @@ function handleAnswer(selected){
     if(wasDouble){ gain *= 2; S.doubleActive = false; }
     S.score += gain;
     S.correctCount++;
-    if(cur.isReview) S.wrongPool.delete(cur.qIndex);
+    
     let msg = `✅ Chính xác! +${gain} điểm`;
     if(mult===1.5) msg += ` 🔥 x1.5`;
     if(wasDouble) msg += ` ⚡ x2`;
     setFeedback(true, msg);
 
     if(S.streak >= 5 && S.streak % 5 === 0) setTimeout(()=>tryDropItem(), 700);
-    if(S.correctCount % 10 === 0 && S.wrongPool.size > 0) S.pendingReview = true;
   } else {
     if(selected >= 0) btns[selected].classList.add("wrong");
     btns[correctIdx].classList.add("correct");
@@ -543,7 +525,6 @@ function handleAnswer(selected){
     if(S.curseRemaining <= 0 && Math.random() < 0.25) setTimeout(()=>showCursePopup(), 1000);
   }
 
-  /* ===== HIỆN GIẢI THÍCH CHO CÂU ABCD ===== */
   const q = QUESTIONS[S.current.qIndex];
   if(q && q.explain){
     const box = $("options");
@@ -561,9 +542,6 @@ function handleAnswer(selected){
   pendingTimeout = setTimeout(()=>{ if(S && !S.dead) nextQuestion(); }, delay);
 }
 
-/* =========================================================
-   XỬ LÝ ĐÚNG/SAI
-   ========================================================= */
 function selectDungSai(idx, chonDung, st, el){
   if(!S || S.answered || S.dead) return;
   if(el.classList.contains("locked")) return;
@@ -635,9 +613,6 @@ function selectDungSai(idx, chonDung, st, el){
   }
 }
 
-/* =========================================================
-   XỬ LÝ TRẢ LỜI NGẮN
-   ========================================================= */
 function submitTLN(q){
   if(!S || S.answered || S.dead) return;
   const input = $("tlInput");
@@ -687,9 +662,6 @@ function submitTLN(q){
   }, getDelayMs(isCorrect));
 }
 
-/* =========================================================
-   XỬ LÝ KHI HẾT GIỜ
-   ========================================================= */
 function handleTimeout(){
   if(!S || S.answered || S.dead) return;
   const q = QUESTIONS[S.current.qIndex];
@@ -727,9 +699,6 @@ function handleTimeout(){
   }
 }
 
-/* =========================================================
-   FEEDBACK + HUD
-   ========================================================= */
 function setFeedback(ok, text){
   const f = $("feedback");
   f.textContent = text;
@@ -754,9 +723,9 @@ function updateProgress(){
   const done = QUESTIONS.length - S.queue.length;
   $("progFill").style.width = (done / QUESTIONS.length * 100) + "%";
   $("progTxt").textContent = `${Math.min(done+1, QUESTIONS.length)}/${QUESTIONS.length}`;
-}
+   }
 /* =========================================================
-   VẬT PHẨM
+   VẬT PHẨM & PVP BOTS
    ========================================================= */
 function tryDropItem(){
   if(Math.random() > 0.7) return;
@@ -840,9 +809,7 @@ function useItem(key){
   else if(key === "freezeTime"){
     if(S.totalTime === 0){
       setFeedback(false, "⏱️ Chế độ thoải mái không cần đóng băng giờ!"); 
-      S.inventory[key]--;
-      updateHud(); updateInventory();
-      return;
+      S.inventory[key]--; updateHud(); updateInventory(); return;
     }
     S.timeLeft = Math.min(S.totalTime, S.timeLeft + 30);
     paintTimer(); S.inventory[key]--;
@@ -855,18 +822,14 @@ function useItem(key){
   else if(key === "freezeBot"){
     if(!S.isPvP){ S.inventory[key]--; return; }
     const avail = S.bots.map((b,i)=>i).filter(i=>!S.frozenBots[i]);
-    if(avail.length === 0){
-      setFeedback(false, "❄️ Tất cả bot đã bị freeze!"); return;
-    }
+    if(avail.length === 0){ setFeedback(false, "❄️ Tất cả bot đã bị freeze!"); return; }
     const target = avail[Math.floor(Math.random()*avail.length)];
     S.frozenBots[target] = 2; S.inventory[key]--;
     setFeedback(true, `❄️ Đã freeze ${S.bots[target].name}!`);
   }
   else if(key === "fifty"){
     const cur = S.current;
-    if(!cur.options || cur.options.length === 0){
-      setFeedback(false, "🎯 Không dùng được cho câu này!"); return;
-    }
+    if(!cur.options || cur.options.length === 0){ setFeedback(false, "🎯 Không dùng được cho câu này!"); return; }
     const wrongIdxs = cur.options.map((o,i)=>o.correct ? -1 : i).filter(i=>i>=0);
     shuffle(wrongIdxs);
     const remove = wrongIdxs.slice(0,2);
@@ -879,9 +842,6 @@ function useItem(key){
   updateInventory();
 }
 
-/* =========================================================
-   PVP BOTS
-   ========================================================= */
 function scheduleBotsAnswer(){
   const speedMult = getBotSpeedMult();
   S.bots.forEach((bot, idx)=>{
@@ -905,6 +865,7 @@ function scheduleBotsAnswer(){
     }, delay*1000);
   });
 }
+
 function updatePvpBoard(){
   if(!S || !S.isPvP) return;
   const board = $("pvpBoard");
@@ -935,7 +896,6 @@ function endGame(){
 
   const total = S.correctCount + S.wrongCount;
   const acc = total ? Math.round(S.correctCount/total*100) : 0;
-
   saveScore(MON, S.score);
 
   $("endName").textContent = `Người chơi: ${S.name} • Mức ${S.cfg.label}${hardcoreMode?" ⚡":""}`;
@@ -1005,9 +965,6 @@ function saveScore(mon, score){
   localStorage.setItem(playsKey, plays.toString());
 }
 
-/* =========================================================
-   NÚT ĐIỀU KHIỂN CHÍNH
-   ========================================================= */
 $("btnQuit").onclick = ()=>{
   if(online && online.started){
     if(confirm("Rời trận đấu online?")){ leaveOnline(); showScreen("screenStart"); }
@@ -1033,7 +990,7 @@ $("btnReplay").onclick = ()=>{
   startGame(S.name, S.diff);
 };
 /* =========================================================
-   ONLINE PEERJS
+   ONLINE PEERJS - TẠO PHÒNG VÀ KẾT NỐI
    ========================================================= */
 function genRoomCode(){
   const c = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -1174,10 +1131,7 @@ function handleHostData(conn, data){
   if(!online) return;
   switch(data.type){
     case "hello":
-      online.players[data.uid] = {
-        name: data.name, ready: false, score: 0,
-        isHost: false, conn: conn
-      };
+      online.players[data.uid] = { name: data.name, ready: false, score: 0, isHost: false, conn: conn };
       broadcastPlayers();
       renderOnlinePlayers();
       break;
@@ -1214,34 +1168,12 @@ function handleGuestData(data){
       renderOnlinePlayers();
       updateReadyBtn();
       break;
-    case "start":
-      online.questions = data.questions;
-      online.started = true;
-      online.qIndex = -1;
-      online.myAnswered = false;
-      $("hudName").textContent = online.myName;
-      $("avatar").textContent = online.myName.charAt(0).toUpperCase();
-      $("pvpBoard").style.display = "grid";
-      $("invBar").style.display = "none";
-      $("effectBadges").style.display = "none";
-      showScreen("screenQuiz");
-      break;
-    case "question":
-      online.qIndex = data.index;
-      online.currentShuffled = data.shuffled;
-      online.myAnswered = false;
-      online.myChoice = -1;
-      renderOnlineQuestion(data);
-      break;
     case "scores":
       Object.keys(data.scores).forEach(uid=>{
         if(online.players[uid]) online.players[uid].score = data.scores[uid];
       });
       renderOnlinePlayers();
       renderOnlinePvpBoard();
-      break;
-    case "end":
-      showOnlineEnd(data.ranking);
       break;
   }
 }
@@ -1265,9 +1197,7 @@ function broadcastPlayers(){
 
 function getScoresObj(){
   const o = {};
-  Object.keys(online.players).forEach(uid=>{
-    o[uid] = online.players[uid].score;
-  });
+  Object.keys(online.players).forEach(uid=>{ o[uid] = online.players[uid].score; });
   return o;
 }
 
@@ -1344,207 +1274,3 @@ $("btnReady").onclick = ()=>{
     updateReadyBtn();
   }
 };
-
-function startOnlineAsHost(){
-  if(!online || !online.isHost) return;
-  /* Chỉ lấy câu ABCD cho online */
-  const abcdIndexes = QUESTIONS.map((q,i)=>getQType(q)==="abcd" ? i : -1).filter(i=>i>=0);
-  const list = shuffle([...abcdIndexes]).slice(0, 10);
-  online.questions = list;
-  online.qIndex = -1;
-  online.started = true;
-  broadcast({ type:"start", questions: list });
-  $("hudName").textContent = online.myName;
-  $("avatar").textContent = online.myName.charAt(0).toUpperCase();
-  $("pvpBoard").style.display = "grid";
-  $("invBar").style.display = "none";
-  $("effectBadges").style.display = "none";
-  showScreen("screenQuiz");
-  setTimeout(()=>sendNextOnlineQuestion(), 800);
-}
-
-function sendNextOnlineQuestion(){
-  if(!online || !online.isHost) return;
-  online.qIndex++;
-  if(online.qIndex >= online.questions.length){
-    const ranking = getRanking();
-    broadcast({ type:"end", ranking: ranking });
-    showOnlineEnd(ranking);
-    return;
-  }
-  const qi = online.questions[online.qIndex];
-  const q = QUESTIONS[qi];
-  let shuffled = q.o.map((t,i)=>({ text:t, correct:i===q.a }));
-  shuffled = shuffle(shuffled);
-  online.currentShuffled = shuffled;
-  online.myAnswered = false;
-  online.myChoice = -1;
-  broadcast({ type:"question", index: online.qIndex, qi: qi, shuffled: shuffled });
-  renderOnlineQuestion({ index: online.qIndex, qi: qi, shuffled: shuffled });
-}
-
-function renderOnlineQuestion(data){
-  const q = QUESTIONS[data.qi];
-  const opts = data.shuffled;
-  $("qText").textContent = q.q;
-  $("qBadge").textContent = `CÂU ${data.index+1}/${online.questions.length}`;
-  $("qBadge").className = "badge";
-  const box = $("options");
-  box.innerHTML = "";
-  box.style.display = "block";
-  box.classList.remove("locked");
-  opts.forEach((opt, i)=>{
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "option";
-    const letter = document.createElement("span");
-    letter.className = "letter";
-    letter.textContent = "ABCD"[i];
-    const txt = document.createElement("span");
-    txt.className = "otext";
-    txt.textContent = opt.text;
-    btn.append(letter, txt);
-    btn.onclick = ()=>handleOnlineAnswer(i);
-    box.appendChild(btn);
-  });
-  $("feedback").textContent = "";
-  $("feedback").className = "feedback";
-  $("progFill").style.width = ((data.index+1) / online.questions.length * 100) + "%";
-  $("progTxt").textContent = `${data.index+1}/${online.questions.length}`;
-  renderOnlinePvpBoard();
-  const totalTime = hardcoreMode ? 15 : 30;
-  S = {
-    totalTime, timeLeft: totalTime, timerId: null,
-    dead: false, answered: false,
-    onTimeUp: ()=>handleOnlineAnswer(-1)
-  };
-  startTimer();
-}
-
-function handleOnlineAnswer(idx){
-  if(!online || online.myAnswered) return;
-  online.myAnswered = true;
-  online.myChoice = idx;
-  clearInterval(S.timerId);
-  const opts = online.currentShuffled;
-  const correctIdx = opts.findIndex(o=>o.correct);
-  const isCorrect = (idx === correctIdx);
-  const btns = [...$("options").children];
-  $("options").classList.add("locked");
-  if(isCorrect){
-    btns[correctIdx].classList.add("correct");
-    setFeedback(true, "✅ Chính xác! +100 điểm");
-  } else {
-    if(idx >= 0) btns[idx].classList.add("wrong");
-    btns[correctIdx].classList.add("correct");
-    setFeedback(false, "❌ Sai rồi! Đáp án: " + "ABCD"[correctIdx]);
-  }
-  if(online.players[online.myUid] && isCorrect){
-    online.players[online.myUid].score = (online.players[online.myUid].score || 0) + 100;
-  }
-  renderOnlinePvpBoard();
-  if(online.isHost){
-    broadcast({ type:"scores", scores: getScoresObj() });
-    clearTimeout(pendingTimeout);
-    pendingTimeout = setTimeout(()=>sendNextOnlineQuestion(), 2000);
-  } else {
-    if(online.hostConn && online.hostConn.open){
-      online.hostConn.send({ type:"answer", uid: online.myUid, correct: isCorrect, points: 100 });
-    }
-  }
-}
-
-function renderOnlinePvpBoard(){
-  if(!online) return;
-  const board = $("pvpBoard");
-  board.innerHTML = "";
-  const uids = Object.keys(online.players).sort((a,b)=>(online.players[b].score||0) - (online.players[a].score||0));
-  uids.forEach(uid=>{
-    const p = online.players[uid];
-    const el = document.createElement("div");
-    el.className = "pvp-player";
-    if(uid === online.myUid) el.classList.add("me");
-    el.innerHTML = `<span class="ava">${p.name.charAt(0).toUpperCase()}</span><span class="nm">${p.name}</span><span class="sc">${p.score || 0}</span>`;
-    board.appendChild(el);
-  });
-}
-
-function getRanking(){
-  const arr = Object.keys(online.players).map(uid=>({
-    name: online.players[uid].name,
-    score: online.players[uid].score || 0,
-    isMe: uid === online.myUid
-  }));
-  arr.sort((a,b)=>b.score - a.score);
-  return arr;
-}
-
-function showOnlineEnd(ranking){
-  if(!online) return;
-  if(!ranking || ranking.length === 0){
-    leaveOnline();
-    showScreen("screenStart");
-    return;
-  }
-  const myEntry = ranking.find(r => r.name === online.myName);
-  const myRank = ranking.findIndex(r => r.name === online.myName) + 1;
-  const myScore = myEntry ? myEntry.score : 0;
-
-  let title = "HOÀN THÀNH!";
-  if(myRank === 1) title = "🏆 VÔ ĐỊCH!";
-  else if(myRank === 2) title = "🥈 Á QUÂN!";
-  else if(myRank === 3) title = "🥉 HẠNG 3!";
-  else if(myRank > 0) title = "😢 HẠNG " + myRank;
-
-  $("endTitle").textContent = title;
-  $("endName").textContent = `Phòng ${online.roomCode} • ${ranking.length} người chơi`;
-  $("endScore").textContent = myScore.toLocaleString("vi-VN");
-  $("stCorrect").textContent = "—";
-  $("stWrong").textContent = "—";
-  $("stAcc").textContent = "—";
-  $("stStreak").textContent = myRank > 0 ? "#" + myRank : "—";
-
-  const list = $("wrongList");
-  list.innerHTML = "<h3>🏆 BẢNG XẾP HẠNG</h3>";
-  ranking.forEach((r, i)=>{
-    const medal = i===0?"🥇":i===1?"🥈":i===2?"🥉":"#"+(i+1);
-    const d = document.createElement("div");
-    d.className = "wrong-item";
-    d.style.borderLeftColor = r.isMe ? "#38bdf8" : "#94a3b8";
-    d.innerHTML = `
-      <div class="q" style="color:${r.isMe?'#7dd3fc':'#cbd5e1'}">${medal} ${r.name}${r.isMe?" (Bạn)":""}</div>
-      <div class="a" style="color:#38bdf8;font-size:15px;font-weight:900">${r.score.toLocaleString("vi-VN")} điểm</div>
-    `;
-    list.appendChild(d);
-  });
-  showScreen("screenEnd");
-}
-
-$("btnLeaveRoom").onclick = ()=>{
-  if(!online) return;
-  if(!confirm("Rời phòng?")) return;
-  leaveOnline();
-  showScreen("screenStart");
-};
-
-function leaveOnline(){
-  if(!online) return;
-  if(online.isHost && online.connections){
-    online.connections.forEach(c=>{
-      try{ c.send({ type:"end", ranking:[] }) }catch(e){}
-      try{ c.close() }catch(e){}
-    });
-  }
-  if(online.peer){
-    try{ online.peer.destroy() }catch(e){}
-  }
-  online = null;
-}
-
-window.addEventListener("beforeunload", e=>{
-  if(online) leaveOnline();
-  if(S && !S.dead && S.questionNumber > 0 && !online){
-    e.preventDefault();
-    e.returnValue = "";
-  }
-});
