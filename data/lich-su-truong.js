@@ -1,9 +1,8 @@
 /* =========================================================
-   DATA CÂU HỎI LỊCH SỬ - GIỮA KÌ 1 (Bản hoàn chỉnh)
+   DATA CÂU HỎI LỊCH SỬ - GIỮA KÌ 1 (Bản sạch - 25 câu ABCD)
    ========================================================= */
 window.ON_TAP_DATA = window.QUESTIONS = [];
 
-/* ===== PHẦN I: 25 CÂU TRẮC NGHIỆM ABCD ===== */
 window.ON_TAP_DATA.push(
   {
     type: "abcd",
