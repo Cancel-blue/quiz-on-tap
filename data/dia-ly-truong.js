@@ -126,8 +126,8 @@ window.DIA_ALL.push(
     type: "abcd",
     q: "Vị trí địa lí nước ta",
     o: ["ở trung tâm Đông Nam Á.", "tiếp giáp với Ấn Độ Dương.", "giáp với nhiều quốc gia.", "nằm trên vành đai sinh khoáng."],
-    a: 3,
-    explain: "Nước ta nằm trên vành đai sinh khoáng Địa Trung Hải - Thái Bình Dương, giàu khoáng sản."
+    a: 2,
+    explain: "Nước ta giáp với nhiều quốc gia (Trung Quốc, Lào, Campuchia trên đất liền và nhiều nước trên biển)."
   },
   {
     type: "abcd",
@@ -161,8 +161,8 @@ window.DIA_ALL.push(
     type: "abcd",
     q: "Điểm khác biệt về khí hậu của Nam Bộ so với vùng ven biển Nam Trung Bộ là",
     o: ["mùa mưa ngắn hơn.", "mùa mưa sớm hơn.", "khí hậu cận xích đạo.", "nóng quanh năm."],
-    a: 2,
-    explain: "Nam Bộ có khí hậu cận xích đạo, còn Nam Trung Bộ có khí hậu nhiệt đới gió mùa."
+    a: 1,
+    explain: "Nam Bộ có mùa mưa sớm hơn so với vùng ven biển Nam Trung Bộ."
   },
   {
     type: "abcd",
@@ -433,7 +433,7 @@ window.DIA_ALL.push(
   },
   {
     type: "dungsai",
-    q: "Câu 2: Cho thông tin sau: Nước ta có lượng mưa trung bình năm khá lớn, dao động khoảng 1500 - 2000 mm, phản ánh rõ nét tính chất ẩm của khí hậu Việt Nam. Tuy nhiên, lượng mưa có sự phân hóa mạnh giữa các khu vực do ảnh hưởng của địa hình và chế độ gió mùa. Mùa mưa ở Nam Bộ thường kéo dài từ khoảng tháng 5 đến tháng 11.",
+    q: "Câu 2: Cho thông tin sau: Nước ta có lượng mưa trung bình năm khá lớn, dao động khoảng 1500 - 2000 mm, phản ánh rõ nét tính chất ẩm của khí hậu Việt Nam. Tuy nhiên, lượng mưa có sự phân hóa mạnh giữa các khu vực do ảnh hưởng của địa hình và chế độ gió mùa. Mùa mưa ở Nam Bộ thường kéo dài từ khoảng tháng 5 đến tháng 11, chịu tác động trực tiếp của gió mùa Tây Nam mang theo lượng ẩm lớn từ biển thổi vào. Trong giai đoạn này, mưa xuất hiện với tần suất cao, nhiều ngày có mưa dông vào buổi chiều và tối, tạo thành nét đặc trưng “mưa giông nhiệt đới”.",
     statements: [
       { text: "Nam Bộ có mùa mưa lệch pha so với Bắc Bộ, mùa mưa ở Nam Bộ kéo dài hơn Bắc Bộ.", answer: true },
       { text: "Đỉnh mưa ở Nam Bộ thường vào đầu mùa hạ, vì đây là thời điểm gió mùa Tây Nam mạnh nhất.", answer: false },
@@ -482,4 +482,65 @@ window.DIA_ALL.push(
     ]
   }
 );
+/* ===== PHẦN 3: 8 CÂU TRẢ LỜI NGẮN ===== */
+window.DIA_ALL.push(
+  {
+    type: "tlngan",
+    q: "Nước ta có 21 tỉnh/thành phố giáp biển. Hãy cho biết số tỉnh/thành phố giáp biển chiếm bao nhiêu % số tỉnh/thành của nước ta? (làm tròn kết quả đến một chữ số thập phân)",
+    hint: "Nước ta hiện có 34 tỉnh/thành phố (sau sáp nhập 2025)",
+    accept: ["61.8", "61,8"],
+    explain: "21 / 34 × 100 = 61,8%"
+  },
+  {
+    type: "tlngan",
+    q: "Cho bảng số liệu nhiệt độ trung bình các tháng năm 2024 tại Lai Châu (°C): T1: 14,8 / T2: 18,1 / T3: 19,4 / T4: 25,3 / T5: 23,0 / T6: 23,7 / T7: 24,2 / T8: 23,3 / T9: 23,8 / T10: 21,4 / T11: 18,6 / T12: 14,6. Biên độ nhiệt độ trung bình năm 2024 tại Lai Châu là bao nhiêu °C? (làm tròn đến một chữ số thập phân)",
+    hint: "Biên độ = Nhiệt độ cao nhất - Nhiệt độ thấp nhất",
+    accept: ["10.7", "10,7"],
+    explain: "Max = 25,3°C (tháng 4); Min = 14,6°C (tháng 12) → Biên độ = 25,3 - 14,6 = 10,7°C"
+  },
+  {
+    type: "tlngan",
+    q: "Cho bảng số liệu nhiệt độ trung bình tại Sơn La (2015-2024): 2015: 22,30°C / 2020: 22,20°C / 2022: 21,58°C / 2024: 22,55°C. Nhiệt độ trung bình của các năm trên tại Sơn La là bao nhiêu °C? (làm tròn đến một chữ số thập phân)",
+    hint: "Tính trung bình cộng của 4 năm",
+    accept: ["22.2", "22,2"],
+    explain: "(22,30 + 22,20 + 21,58 + 22,55) / 4 = 22,1575 ≈ 22,2°C"
+  },
+  {
+    type: "tlngan",
+    q: "Cho bảng số liệu nhiệt độ trung bình các tháng năm 2024 tại Đà Lạt (°C): T1: 17,2 / T2: 18,3 / T3: 19,6 / T4: 20,9 / T5: 21,0 / T6: 20,4 / T7: 19,2 / T8: 19,9 / T9: 19,5 / T10: 19,1 / T11: 18,7 / T12: 17,4. Biên độ nhiệt độ trung bình năm 2024 tại Đà Lạt là bao nhiêu °C? (làm tròn đến một chữ số thập phân)",
+    hint: "Biên độ = Max - Min",
+    accept: ["3.8", "3,8"],
+    explain: "Max = 21,0°C (tháng 5); Min = 17,2°C (tháng 1) → Biên độ = 21,0 - 17,2 = 3,8°C"
+  },
+  {
+    type: "tlngan",
+    q: "Cho bảng số liệu lượng mưa các tháng tại Huế năm 2024 (mm): T1: 91,3 / T2: 11,3 / T3: 38,6 / T4: 6,6 / T5: 237,1 / T6: 91,1 / T7: 197,8 / T8: 93,5 / T9: 527,5 / T10: 960,5 / T11: 787,6 / T12: 644,0. Tổng lượng mưa của Huế năm 2024 là bao nhiêu mm? (làm tròn đến hàng đơn vị)",
+    hint: "Cộng tất cả 12 tháng",
+    accept: ["3687"],
+    explain: "Tổng = 91,3 + 11,3 + 38,6 + 6,6 + 237,1 + 91,1 + 197,8 + 93,5 + 527,5 + 960,5 + 787,6 + 644,0 ≈ 3687 mm"
+  },
+  {
+    type: "tlngan",
+    q: "Cũng với bảng số liệu Huế 2024 ở trên, sự chênh lệch lượng mưa giữa tháng có lượng mưa cao nhất và tháng có lượng mưa thấp nhất ở Huế là bao nhiêu mm? (làm tròn đến hàng đơn vị)",
+    hint: "Tìm max và min trong 12 tháng",
+    accept: ["954"],
+    explain: "Max = 960,5 (T10); Min = 6,6 (T4) → Chênh lệch = 960,5 - 6,6 = 953,9 ≈ 954 mm"
+  },
+  {
+    type: "tlngan",
+    q: "Ở độ cao 100m thuộc sườn đón gió trên dãy núi Bi Doup có nhiệt độ là 23°C. Hỏi ở độ cao 150m thuộc sườn khuất gió trên dãy núi Bi Doup có nhiệt độ là bao nhiêu °C? (biết đỉnh núi Bi Doup cao 2287m; làm tròn đến một chữ số thập phân)",
+    hint: "Lên cao 100m giảm 0,6°C. Xuống thấp 100m tăng 1°C",
+    accept: ["31.2", "31,2"],
+    explain: "Lên đỉnh: 23 - (2287-100)×0,6/100 = 9,878°C. Xuống 150m: 9,878 + (2287-150)×1/100 = 31,248 ≈ 31,2°C"
+  },
+  {
+    type: "tlngan",
+    q: "Năm 2024, tổng dân số của nước ta là 101343,8 nghìn người, số dân nam là 50576,9 nghìn người. Hãy cho biết tỉ lệ nữ là bao nhiêu %? (làm tròn đến một chữ số thập phân)",
+    hint: "Số nữ = Tổng - Số nam",
+    accept: ["50.1", "50,1"],
+    explain: "Số nữ = 101343,8 - 50576,9 = 50766,9 (nghìn người). Tỉ lệ nữ = 50766,9 / 101343,8 × 100 ≈ 50,1%"
+  }
+);
+
+/* ===== GÁN BIẾN TOÀN CỤC ĐỂ GAME ĐỌC ĐƯỢC ===== */
 window.ON_TAP_DATA = window.QUESTIONS = window.DIA_ALL;
