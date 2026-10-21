@@ -49,7 +49,23 @@ let pendingTimeout = null;
 let online = null;
 const MAX_ONLINE = 4;
 const MON = window.CURRENT_MON || "lich-su";
-const QUESTIONS = window.QUESTIONS || [];
+let allQuestions = window.QUESTIONS || window.ON_TAP_DATA || [];
+
+// Lấy chế độ chơi từ bộ nhớ hoặc URL
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get("set")) {
+    sessionStorage.setItem("chosenSet", urlParams.get("set"));
+}
+const currentSet = sessionStorage.getItem("chosenSet") || "truong";
+
+// Lọc câu hỏi theo chế độ
+let QUESTIONS = [];
+if (currentSet === "dungsai") {
+    QUESTIONS = allQuestions.filter(q => q.type === "dungsai");
+} else {
+    // Chế độ thường (truong) chỉ lấy câu ABCD
+    QUESTIONS = allQuestions.filter(q => q.type === "abcd");
+}
 
 const $ = id => document.getElementById(id);
 const norm = s => String(s).trim().toLowerCase().replace(/\s+/g," ").replace(/[.,;]/g, "");
