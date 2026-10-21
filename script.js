@@ -1,5 +1,5 @@
 /* =========================================================
-   SCRIPT.JS - Bản gộp đầy đủ (v7 - Đã xóa câu sai, fix URL)
+   SCRIPT.JS - Bản Full Sạch (Đã sửa lỗi Đúng/Sai & Xóa câu sai)
    ========================================================= */
 
 const DIFFICULTIES = {
@@ -50,12 +50,10 @@ const MAX_ONLINE = 4;
 const MON = window.CURRENT_MON || "lich-su";
 let allQuestions = window.QUESTIONS || window.ON_TAP_DATA || [];
 
-// Lấy chế độ chơi đồng bộ
 const urlParams = new URLSearchParams(window.location.search);
 const currentSet = urlParams.get("set") || sessionStorage.getItem("chosenSet") || "truong";
 sessionStorage.setItem("chosenSet", currentSet);
 
-// Lọc câu hỏi
 let QUESTIONS = [];
 if (currentSet === "dungsai") {
     QUESTIONS = allQuestions.filter(q => q.type === "dungsai");
@@ -95,9 +93,7 @@ function initBotSpeedSlider(){
 }
 initBotSpeedSlider();
 
-function getBotSpeedMult(){
-  return BOT_SPEED_OPTIONS[botSpeedChoice].mult;
-}
+function getBotSpeedMult(){ return BOT_SPEED_OPTIONS[botSpeedChoice].mult; }
 
 function initDelaySlider(){
   const slider = $("delaySlider");
@@ -272,8 +268,6 @@ function buildOptions(qIdx, hard){
 function nextQuestion(){
   if(!S || S.dead) return;
   
-  /* Đã xóa tính năng chèn câu sai ở đây */
-
   if(S.queue.length === 0){ endGame(); return; }
   const qi = S.queue.shift();
   S.current = { qIndex:qi, options: buildOptions(qi, S.cfg.hard), isReview:false };
@@ -567,9 +561,8 @@ function selectDungSai(idx, chonDung, st, el){
     el.classList.add("wrong");
     S.streak = 0;
     S.score = Math.max(0, S.score - 25);
-    S.wrongPool.add(S.current.qIndex);
-    S.wrongLog.push(S.current.qIndex);
   }
+  
   S.dsState.answered++;
   updateHud();
 
@@ -577,35 +570,31 @@ function selectDungSai(idx, chonDung, st, el){
     S.answered = true;
     clearInterval(S.timerId);
 
-    if(S.dsState.answered >= S.dsState.total){
-  S.answered = true;
-  clearInterval(S.timerId);
+    let bonus = 0;
+    const allCorrect = (S.dsState.correct === S.dsState.total);
+    
+    // Đúng 4/4 thì được thưởng 50đ
+    if(allCorrect){
+      bonus = 50;
+      S.score += bonus;
+    }
 
-  let bonus = 0;
-  const allCorrect = (S.dsState.correct === S.dsState.total);
-  
-  // Đúng 4/4 thì được thưởng 50đ
-  if(allCorrect){
-    bonus = 50;
-    S.score += bonus;
-  }
+    // Đánh giá: Đúng từ 2 ý trở lên (>=50%) là tính là CÂU ĐÚNG
+    const isOverallCorrect = (S.dsState.correct >= Math.ceil(S.dsState.total / 2));
 
-  // Đánh giá: Đúng từ 2 ý trở lên (>=50%) là tính là CÂU ĐÚNG
-  const isOverallCorrect = (S.dsState.correct >= Math.ceil(S.dsState.total / 2));
+    if(isOverallCorrect){
+      S.correctCount++;
+    } else {
+      S.wrongCount++;
+      // Chỉ đưa vào danh sách câu sai nếu làm sai > 1/2 số ý
+      S.wrongPool.add(S.current.qIndex);
+      S.wrongLog.push(S.current.qIndex);
+    }
+    
+    updateHud();
 
-  if(isOverallCorrect){
-    S.correctCount++;
-  } else {
-    S.wrongCount++;
-    // Chỉ đưa vào danh sách câu sai nếu làm sai > 1/2 số ý
-    S.wrongPool.add(S.current.qIndex);
-    S.wrongLog.push(S.current.qIndex);
-  }
-  
-  updateHud();
-
-  const ok = isOverallCorrect;
-  setFeedback(ok, `Hoàn thành! Đúng ${S.dsState.correct}/${S.dsState.total} ý` + (bonus ? " (+50đ)" : ""));
+    const ok = isOverallCorrect;
+    setFeedback(ok, `Hoàn thành! Đúng ${S.dsState.correct}/${S.dsState.total} ý` + (bonus ? " (+50đ)" : ""));
 
     const q = QUESTIONS[S.current.qIndex];
     if(q.explain){
@@ -671,7 +660,7 @@ function submitTLN(q){
   pendingTimeout = setTimeout(()=>{
     if(S && !S.dead) nextQuestion();
   }, getDelayMs(isCorrect));
-}
+       }
 /* =========================================================
    XỬ LÝ KHI HẾT GIỜ
    ========================================================= */
@@ -684,6 +673,9 @@ function handleTimeout(){
     handleAnswer(-1);
   } else if (qType === "dungsai") {
     S.answered = true;
+    clearInterval(S.timerId);
+    
+    // Đánh dấu các ý chưa làm là sai
     q.statements.forEach((st, idx)=>{
       const el = document.querySelector('.ds-statement[data-idx="' + idx + '"]');
       if(el && !el.classList.contains("locked")){
@@ -692,19 +684,32 @@ function handleTimeout(){
         btns.forEach(b=>b.disabled = true);
         if(st.answer) btns[0].classList.add("correct-ans");
         else btns[1].classList.add("correct-ans");
-        S.wrongPool.add(S.current.qIndex);
-        S.wrongLog.push(S.current.qIndex);
       }
     });
-    S.wrongCount++;
-    setFeedback(false, "⏰ Hết giờ! Xem đáp án đúng bên trên.");
+
+    // Tính toán lại xem có đạt >= 2/4 ý đúng không (để áp dụng logic mới)
+    const isOverallCorrect = (S.dsState.correct >= Math.ceil(S.dsState.total / 2));
+
+    if(isOverallCorrect){
+      S.correctCount++;
+      setFeedback(true, `⏰ Hết giờ! Đúng ${S.dsState.correct}/${S.dsState.total} ý (Tính là câu Đúng)`);
+    } else {
+      S.wrongCount++;
+      S.wrongPool.add(S.current.qIndex);
+      S.wrongLog.push(S.current.qIndex);
+      setFeedback(false, `⏰ Hết giờ! Đúng ${S.dsState.correct}/${S.dsState.total} ý (Tính là câu Sai)`);
+    }
+    
+    updateHud();
+
     if(q.explain){
       const box = $("options");
       const ex = document.createElement("div");
-      ex.className = "explain-box show wrong";
+      ex.className = "explain-box show" + (isOverallCorrect ? "" : " wrong");
       ex.innerHTML = '<b>💡 GIẢI THÍCH:</b> ' + q.explain;
       box.appendChild(ex);
     }
+
     clearTimeout(pendingTimeout);
     pendingTimeout = setTimeout(()=>{ if(S && !S.dead) nextQuestion(); }, getDelayMs());
   } else if (qType === "tlngan") {
@@ -742,7 +747,7 @@ function updateProgress(){
 }
 
 /* =========================================================
-   VẬT PHẨM
+   VẬT PHẨM & HIỆU ỨNG
    ========================================================= */
 function tryDropItem(){
   if(Math.random() > 0.7) return;
@@ -903,9 +908,9 @@ function updatePvpBoard(){
     el.innerHTML = `<span class="ava">${bot.ava}</span><span class="nm">${bot.name}</span><span class="sc">${bot.score}</span>`;
     board.appendChild(el);
   });
-     }
+    }
 /* =========================================================
-   KẾT THÚC GAME (END GAME)
+   KẾT THÚC GAME & ĐIỀU HƯỚNG
    ========================================================= */
 function endGame(){
   if(!S) return;
@@ -1004,7 +1009,6 @@ $("btnReplay").onclick = ()=>{
   if(!S){ showScreen("screenStart"); return; }
   startGame(S.name, S.diff);
 };
-
 /* =========================================================
    ONLINE PEERJS
    ========================================================= */
