@@ -1,5 +1,5 @@
 /* =========================================================
-   SCRIPT.JS - Bản Full Sạch (Đã sửa lỗi Đúng/Sai & Xóa câu sai)
+   SCRIPT.JS - Bản Full (Tách Đúng/Sai thành 24 câu độc lập)
    ========================================================= */
 
 const DIFFICULTIES = {
@@ -54,9 +54,23 @@ const urlParams = new URLSearchParams(window.location.search);
 const currentSet = urlParams.get("set") || sessionStorage.getItem("chosenSet") || "truong";
 sessionStorage.setItem("chosenSet", currentSet);
 
+// Lọc và chuyển đổi câu hỏi
 let QUESTIONS = [];
 if (currentSet === "dungsai") {
-    QUESTIONS = allQuestions.filter(q => q.type === "dungsai");
+    // Tách 6 câu Đ/S (24 ý) thành 24 câu hỏi độc lập
+    allQuestions.forEach(q => {
+        if (q.type === "dungsai") {
+            q.statements.forEach((st, idx) => {
+                QUESTIONS.push({
+                    type: "abcd", // Giả lập thành câu ABCD 2 đáp án
+                    q: (q.q ? q.q + "<br><br><hr style='border:0;border-top:1px dashed #475569;margin:10px 0'>" : "") + "<b>Ý " + "abcd"[idx].toUpperCase() + ":</b> " + st.text,
+                    o: ["ĐÚNG", "SAI"],
+                    a: st.answer ? 0 : 1,
+                    explain: q.explain || ""
+                });
+            });
+        }
+    });
 } else {
     QUESTIONS = allQuestions.filter(q => q.type === "abcd");
 }
@@ -112,14 +126,10 @@ function getDelayMs(isCorrect){
   return (isCorrect ? sec * 0.5 : sec) * 1000;
 }
 
-function getQType(q) {
-  if (!q) return "abcd";
-  if (q.type && ["abcd","dungsai","tlngan"].includes(q.type)) return q.type;
-  return "abcd";
-}
-
 if(QUESTIONS.length === 0) console.error("Không có data câu hỏi cho môn: " + MON);
-
+/* =========================================================
+   BẮT ĐẦU GAME & RENDER CÂU HỎI
+   ========================================================= */
 (function checkChosenDiff(){
   const params = new URLSearchParams(window.location.search);
   if(params.get("set") === "full"){
@@ -162,9 +172,7 @@ if(toggleEl){
     this.classList.toggle("on", hardcoreMode);
   };
 }
-/* =========================================================
-   BẮT ĐẦU GAME & RENDER CÂU HỎI
-   ========================================================= */
+
 $("btnStart").onclick = ()=>{
   const name = $("playerName").value.trim();
   if(!name){
@@ -277,7 +285,6 @@ function nextQuestion(){
 function renderQuestion(){
   const cur = S.current;
   const q = QUESTIONS[cur.qIndex];
-  const qType = getQType(q);
   S.answered = false;
   S.questionNumber++;
 
@@ -290,19 +297,16 @@ function renderQuestion(){
     badge.className = "badge";
   }
 
-  $("qText").textContent = q.q;
+  // Dùng innerHTML để hiển thị được định dạng của câu Đúng/Sai
+  $("qText").innerHTML = q.q;
 
   const box = $("options");
   box.innerHTML = "";
   box.classList.remove("locked");
   box.style.display = "block";
 
-  const oldExtra = $("qExtra");
-  if(oldExtra) oldExtra.remove();
-
-  if (qType === "abcd") renderABCDQuestion(q, cur, box);
-  else if (qType === "dungsai") renderDungSaiQuestion(q, cur, box);
-  else if (qType === "tlngan") renderTLNganQuestion(q, cur, box);
+  // Vì tất cả đều đã thành dạng ABCD (kể cả Đúng/Sai) nên chỉ cần gọi hàm này
+  renderABCDQuestion(q, cur, box);
 
   $("feedback").textContent = "";
   $("feedback").className = "feedback";
@@ -330,94 +334,12 @@ function renderABCDQuestion(q, cur, box){
   });
 }
 
-function renderDungSaiQuestion(q, cur, box){
-  box.style.display = "block";
-  box.innerHTML = "";
-  const wrap = document.createElement("div");
-  wrap.id = "qExtra";
-
-  if(q.q && q.q.length > 100){
-    const doc = document.createElement("div");
-    doc.className = "ds-doc";
-    doc.innerHTML = '<span class="doc-label">📖 ĐỌC ĐOẠN TƯ LIỆU</span><div class="doc-text">' + q.q + '</div>';
-    wrap.appendChild(doc);
-    $("qText").textContent = "Đánh giá các nhận định sau:";
-  }
-
-  const title = document.createElement("div");
-  title.style.cssText = "font-size:13px;font-weight:800;color:#fbbf24;margin:14px 0 10px;letter-spacing:.5px";
-  title.textContent = "ĐÁNH GIÁ ĐÚNG / SAI CÁC Ý SAU:";
-  wrap.appendChild(title);
-
-  S.dsState = { answered: 0, correct: 0, total: q.statements.length };
-
-  q.statements.forEach((st, idx)=>{
-    const letter = "abcd"[idx];
-    const el = document.createElement("div");
-    el.className = "ds-statement";
-    el.dataset.idx = idx;
-
-    const text = document.createElement("div");
-    text.className = "st-text";
-    text.innerHTML = '<span class="st-letter">' + letter + ')</span>' + st.text;
-
-    const buttons = document.createElement("div");
-    buttons.className = "st-buttons";
-
-    const btnD = document.createElement("button");
-    btnD.type = "button";
-    btnD.className = "ds-btn dung";
-    btnD.textContent = "✓ ĐÚNG";
-    btnD.onclick = ()=>selectDungSai(idx, true, st, el);
-
-    const btnS = document.createElement("button");
-    btnS.type = "button";
-    btnS.className = "ds-btn sai";
-    btnS.textContent = "✗ SAI";
-    btnS.onclick = ()=>selectDungSai(idx, false, st, el);
-
-    buttons.append(btnD, btnS);
-    el.append(text, buttons);
-    wrap.appendChild(el);
-  });
-
-  box.appendChild(wrap);
-}
-
-function renderTLNganQuestion(q, cur, box){
-  box.style.display = "block";
-  box.innerHTML = "";
-  const wrap = document.createElement("div");
-  wrap.id = "qExtra";
-
-  if(q.hint){
-    const hint = document.createElement("div");
-    hint.className = "tl-hint";
-    hint.innerHTML = '<b>💡 Gợi ý:</b> ' + q.hint;
-    wrap.appendChild(hint);
-  }
-
-  const inputWrap = document.createElement("div");
-  inputWrap.className = "tl-input-wrap";
-  const input = document.createElement("input");
-  input.type = "text";
-  input.className = "tl-input";
-  input.id = "tlInput";
-  input.placeholder = "Nhập đáp án...";
-  input.autocomplete = "off";
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "tl-submit";
-  btn.id = "tlSubmit";
-  btn.textContent = "KIỂM TRA";
-  btn.onclick = ()=>submitTLN(q);
-  input.addEventListener("keydown", e=>{ if(e.key === "Enter") submitTLN(q); });
-  inputWrap.append(input, btn);
-  wrap.appendChild(inputWrap);
-
-  box.appendChild(wrap);
-  setTimeout(()=>input.focus(), 100);
-     }
+// Hàm lấy loại câu (giữ lại để tương thích ngược)
+function getQType(q) {
+  if (!q) return "abcd";
+  if (q.type && ["abcd","dungsai","tlngan"].includes(q.type)) return q.type;
+  return "abcd";
+       }
 /* =========================================================
    TIMER & XỬ LÝ ĐÁP ÁN
    ========================================================= */
@@ -458,7 +380,7 @@ function paintTimer(){
   $("timerText").style.color = p<=20 ? "#f87171" : "#94a3b8";
 }
 
-/* ===== XỬ LÝ ABCD ===== */
+/* ===== XỬ LÝ CHỌN ĐÁP ÁN (Áp dụng cho cả ABCD và Đúng/Sai) ===== */
 function handleAnswer(selected){
   if(!S || S.answered || S.dead) return;
   S.answered = true;
@@ -529,192 +451,11 @@ function handleAnswer(selected){
   pendingTimeout = setTimeout(()=>{ if(S && !S.dead) nextQuestion(); }, delay);
 }
 
-/* ===== XỬ LÝ ĐÚNG / SAI ===== */
-function selectDungSai(idx, chonDung, st, el){
-  if(!S || S.answered || S.dead) return;
-  if(el.classList.contains("locked")) return;
-
-  el.classList.add("locked");
-  const btns = el.querySelectorAll(".ds-btn");
-  const dungThatSu = st.answer;
-  const traLoiDung = (chonDung === dungThatSu);
-
-  if(chonDung) btns[0].classList.add("selected-dung");
-  else btns[1].classList.add("selected-sai");
-
-  if(dungThatSu){
-    btns[0].classList.add("correct-ans");
-    if(!chonDung) btns[1].classList.add("wrong-ans");
-  } else {
-    btns[1].classList.add("correct-ans");
-    if(chonDung) btns[0].classList.add("wrong-ans");
-  }
-  btns.forEach(b=>b.disabled = true);
-
-  if(traLoiDung){
-    el.classList.add("correct");
-    S.dsState.correct++;
-    S.score += 25;
-    S.streak++;
-    if(S.streak > S.bestStreak) S.bestStreak = S.streak;
-  } else {
-    el.classList.add("wrong");
-    S.streak = 0;
-    S.score = Math.max(0, S.score - 25);
-  }
-  
-  S.dsState.answered++;
-  updateHud();
-
-  if(S.dsState.answered >= S.dsState.total){
-    S.answered = true;
-    clearInterval(S.timerId);
-
-    let bonus = 0;
-    const allCorrect = (S.dsState.correct === S.dsState.total);
-    
-    // Đúng 4/4 thì được thưởng 50đ
-    if(allCorrect){
-      bonus = 50;
-      S.score += bonus;
-    }
-
-    // Đánh giá: Đúng từ 2 ý trở lên (>=50%) là tính là CÂU ĐÚNG
-    const isOverallCorrect = (S.dsState.correct >= Math.ceil(S.dsState.total / 2));
-
-    if(isOverallCorrect){
-      S.correctCount++;
-    } else {
-      S.wrongCount++;
-      // Chỉ đưa vào danh sách câu sai nếu làm sai > 1/2 số ý
-      S.wrongPool.add(S.current.qIndex);
-      S.wrongLog.push(S.current.qIndex);
-    }
-    
-    updateHud();
-
-    const ok = isOverallCorrect;
-    setFeedback(ok, `Hoàn thành! Đúng ${S.dsState.correct}/${S.dsState.total} ý` + (bonus ? " (+50đ)" : ""));
-
-    const q = QUESTIONS[S.current.qIndex];
-    if(q.explain){
-      const box = $("options");
-      const ex = document.createElement("div");
-      ex.className = "explain-box show" + (ok ? "" : " wrong");
-      ex.innerHTML = '<b>💡 GIẢI THÍCH:</b> ' + q.explain;
-      box.appendChild(ex);
-    }
-
-    clearTimeout(pendingTimeout);
-    pendingTimeout = setTimeout(()=>{
-      if(S && !S.dead) nextQuestion();
-    }, getDelayMs());
-  }
-}
-
-/* ===== XỬ LÝ TRẢ LỜI NGẮN ===== */
-function submitTLN(q){
-  if(!S || S.answered || S.dead) return;
-  const input = $("tlInput");
-  const btn = $("tlSubmit");
-  if(!input || input.disabled) return;
-  const userAns = input.value.trim();
-  if(!userAns) return;
-
-  S.answered = true;
-  clearInterval(S.timerId);
-
-  const correctArr = (q.accept || []).map(a => norm(a));
-  const isCorrect = correctArr.includes(norm(userAns));
-
-  input.disabled = true;
-  if(btn) btn.disabled = true;
-
-  if(isCorrect){
-    input.classList.add("correct");
-    S.score += 100;
-    S.correctCount++;
-    S.streak++;
-    if(S.streak > S.bestStreak) S.bestStreak = S.streak;
-    setFeedback(true, "✅ Chính xác! +100đ");
-  } else {
-    input.classList.add("wrong");
-    S.streak = 0;
-    S.score = Math.max(0, S.score - 50);
-    S.wrongCount++;
-    S.wrongPool.add(S.current.qIndex);
-    S.wrongLog.push(S.current.qIndex);
-    setFeedback(false, "❌ Sai! Đáp án: " + (q.accept && q.accept[0] ? q.accept[0] : "?"));
-  }
-  updateHud();
-
-  if(q.explain){
-    const box = $("options");
-    const ex = document.createElement("div");
-    ex.className = "explain-box show" + (isCorrect ? "" : " wrong");
-    ex.innerHTML = '<b>💡 GIẢI THÍCH:</b> ' + q.explain;
-    box.appendChild(ex);
-  }
-
-  clearTimeout(pendingTimeout);
-  pendingTimeout = setTimeout(()=>{
-    if(S && !S.dead) nextQuestion();
-  }, getDelayMs(isCorrect));
-       }
-/* =========================================================
-   XỬ LÝ KHI HẾT GIỜ
-   ========================================================= */
+/* ===== XỬ LÝ KHI HẾT GIỜ ===== */
 function handleTimeout(){
   if(!S || S.answered || S.dead) return;
-  const q = QUESTIONS[S.current.qIndex];
-  const qType = getQType(q);
-
-  if (qType === "abcd") {
-    handleAnswer(-1);
-  } else if (qType === "dungsai") {
-    S.answered = true;
-    clearInterval(S.timerId);
-    
-    // Đánh dấu các ý chưa làm là sai
-    q.statements.forEach((st, idx)=>{
-      const el = document.querySelector('.ds-statement[data-idx="' + idx + '"]');
-      if(el && !el.classList.contains("locked")){
-        el.classList.add("locked", "wrong");
-        const btns = el.querySelectorAll(".ds-btn");
-        btns.forEach(b=>b.disabled = true);
-        if(st.answer) btns[0].classList.add("correct-ans");
-        else btns[1].classList.add("correct-ans");
-      }
-    });
-
-    // Tính toán lại xem có đạt >= 2/4 ý đúng không (để áp dụng logic mới)
-    const isOverallCorrect = (S.dsState.correct >= Math.ceil(S.dsState.total / 2));
-
-    if(isOverallCorrect){
-      S.correctCount++;
-      setFeedback(true, `⏰ Hết giờ! Đúng ${S.dsState.correct}/${S.dsState.total} ý (Tính là câu Đúng)`);
-    } else {
-      S.wrongCount++;
-      S.wrongPool.add(S.current.qIndex);
-      S.wrongLog.push(S.current.qIndex);
-      setFeedback(false, `⏰ Hết giờ! Đúng ${S.dsState.correct}/${S.dsState.total} ý (Tính là câu Sai)`);
-    }
-    
-    updateHud();
-
-    if(q.explain){
-      const box = $("options");
-      const ex = document.createElement("div");
-      ex.className = "explain-box show" + (isOverallCorrect ? "" : " wrong");
-      ex.innerHTML = '<b>💡 GIẢI THÍCH:</b> ' + q.explain;
-      box.appendChild(ex);
-    }
-
-    clearTimeout(pendingTimeout);
-    pendingTimeout = setTimeout(()=>{ if(S && !S.dead) nextQuestion(); }, getDelayMs());
-  } else if (qType === "tlngan") {
-    submitTLN(q);
-  }
+  // Vì tất cả đều là ABCD, nên khi hết giờ chỉ cần gọi handleAnswer(-1) là xong
+  handleAnswer(-1);
 }
 
 /* =========================================================
@@ -744,8 +485,7 @@ function updateProgress(){
   const done = QUESTIONS.length - S.queue.length;
   $("progFill").style.width = (done / QUESTIONS.length * 100) + "%";
   $("progTxt").textContent = `${Math.min(done+1, QUESTIONS.length)}/${QUESTIONS.length}`;
-}
-
+     }
 /* =========================================================
    VẬT PHẨM & HIỆU ỨNG
    ========================================================= */
@@ -852,13 +592,19 @@ function useItem(key){
   else if(key === "fifty"){
     const cur = S.current;
     if(!cur.options || cur.options.length === 0){ setFeedback(false, "🎯 Không dùng được cho câu này!"); return; }
+    
+    // Tìm các đáp án sai để loại bỏ
     const wrongIdxs = cur.options.map((o,i)=>o.correct ? -1 : i).filter(i=>i>=0);
     shuffle(wrongIdxs);
-    const remove = wrongIdxs.slice(0,2);
+    
+    // Với câu Đúng/Sai (chỉ có 2 đáp án), thì chỉ loại 1 đáp án sai
+    const removeCount = Math.min(2, wrongIdxs.length); 
+    const remove = wrongIdxs.slice(0, removeCount);
+    
     const btns = [...$("options").children];
     remove.forEach(i=>{ if(btns[i]) btns[i].classList.add("eliminated"); });
     S.inventory[key]--;
-    setFeedback(true, "🎯 Đã loại 2 đáp án sai!");
+    setFeedback(true, "🎯 Đã loại đáp án sai!");
   }
   updateHud();
   updateInventory();
@@ -908,7 +654,7 @@ function updatePvpBoard(){
     el.innerHTML = `<span class="ava">${bot.ava}</span><span class="nm">${bot.name}</span><span class="sc">${bot.score}</span>`;
     board.appendChild(el);
   });
-    }
+                                      }
 /* =========================================================
    KẾT THÚC GAME & ĐIỀU HƯỚNG
    ========================================================= */
@@ -961,11 +707,8 @@ function endGame(){
       let answer = "";
       if(qType === "abcd"){
         answer = "ABCD"[q.a] + ". " + q.o[q.a];
-      } else if(qType === "dungsai"){
-        answer = q.statements.map((st,i)=>"abcd"[i]+") "+(st.answer?"ĐÚNG":"SAI")).join(" • ");
-      } else if(qType === "tlngan"){
-        answer = q.accept ? q.accept[0] : "?";
       }
+      // Lưu ý: Dùng innerHTML để hiển thị đúng định dạng xuống dòng của câu Đúng/Sai
       d.innerHTML = `<div class="q">${q.q}</div><div class="a">✔ Đáp án đúng: <b>${answer}</b></div>`;
       list.appendChild(d);
     });
