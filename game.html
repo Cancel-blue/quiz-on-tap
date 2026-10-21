@@ -17,33 +17,48 @@
     <p class="sub">Chọn bộ đề để chơi</p>
     <div style="display:grid;gap:14px;margin-top:14px">
       
-      <!-- NÚT 1: GAME ÔN TẬP -->
-      <button class="btn-primary" onclick="chonBoDe('truong')"
-              style="background:linear-gradient(90deg,#fbbf24,#f59e0b);padding:22px 16px">
-        🎮 GAME ÔN TẬP
-        <small style="display:block;font-size:12px;font-weight:600;opacity:.9;margin-top:4px">25 câu ABCD • 5 mức độ</small>
-      </button>
+      <!-- NÚT 1: 60 CÂU TRẮC NGHIỆM -->
+<button class="btn-primary" onclick="chonBoDe('truong')"
+        style="background:linear-gradient(90deg,#fbbf24,#f59e0b);padding:22px 16px">
+  🎮 TRẮC NGHIỆM 60 CÂU
+  <small style="display:block;font-size:12px;font-weight:600;opacity:.9;margin-top:4px">Đề ôn tập ABCD</small>
+</button>
 
-      <!-- NÚT 2: TRẮC NGHIỆM ĐÚNG/SAI -->
-      <button class="btn-primary" onclick="chonBoDe('dungsai')"
-              style="background:linear-gradient(90deg,#3b82f6,#2563eb);padding:22px 16px">
-        ✅ TRẮC NGHIỆM ĐÚNG/SAI
-        <small style="display:block;font-size:12px;font-weight:600;opacity:.9;margin-top:4px">6 câu Đ/S • Lịch sử</small>
-      </button>
+<!-- NÚT 2: ĐÚNG/SAI & TRẢ LỜI NGẮN (Có hiệu ứng xổ xuống) -->
+<button class="btn-primary" onclick="toggleMenuDungSai()"
+        style="background:linear-gradient(90deg,#3b82f6,#2563eb);padding:22px 16px">
+  ✅ ĐÚNG/SAI & TRẢ LỜI NGẮN
+  <small style="display:block;font-size:12px;font-weight:600;opacity:.9;margin-top:4px" id="subMenuHint">👆 Bấm để chọn chế độ</small>
+</button>
 
-      <!-- NÚT 3: GAME FULL -->
-      <button class="btn-primary" onclick="chonBoDe('full')"
-              style="background:linear-gradient(90deg,#a855f7,#7c3aed);padding:22px 16px">
-        📚 GAME FULL KIẾN THỨC
-        <small style="display:block;font-size:12px;font-weight:600;opacity:.9;margin-top:4px">20 đề thi thử TN THPT</small>
-      </button>
+<!-- MENU XỔ XUỐNG -->
+<div id="subMenuDS_TLN" style="display:none; flex-direction:column; gap:10px; margin-top:-10px;">
+  <button class="btn-primary" onclick="chonBoDe('dungsai')"
+          style="background:#101a2c;border:1.5px solid #38bdf8;padding:16px">
+    ✅ TRẮC NGHIỆM ĐÚNG/SAI
+    <small style="display:block;font-size:12px;color:#94a3b8;margin-top:4px">6 câu Đ/S</small>
+  </button>
+  
+  <button class="btn-primary" id="btnTLN" onclick="chonBoDe('tlngan')"
+          style="background:#101a2c;border:1.5px solid #f43f5e;padding:16px">
+    ✍️ TRẢ LỜI NGẮN
+    <small style="display:block;font-size:12px;color:#94a3b8;margin-top:4px">8 câu TLN (Chỉ môn Địa)</small>
+  </button>
+</div>
 
-      <!-- NÚT 4: MENU Đ/S KHÁC -->
-      <a class="btn-primary" href="menu-ds.html"
-         style="background:linear-gradient(90deg,#22c55e,#16a34a);padding:22px 16px;text-decoration:none;display:block;text-align:center;color:#fff;font-weight:800;border-radius:13px;font-size:16px;letter-spacing:1px">
-        ✅ TRẮC NGHIỆM ĐÚNG/SAI (MENU)
-        <small style="display:block;font-size:12px;font-weight:600;opacity:.9;margin-top:4px">80 câu Đ/S • Ôn thi THPT</small>
-      </a>
+<!-- NÚT 3: GAME FULL -->
+<button class="btn-primary" onclick="chonBoDe('full')"
+        style="background:linear-gradient(90deg,#a855f7,#7c3aed);padding:22px 16px">
+  📚 GAME FULL KIẾN THỨC
+  <small style="display:block;font-size:12px;font-weight:600;opacity:.9;margin-top:4px">20 đề thi thử TN THPT</small>
+</button>
+
+<!-- NÚT 4: MENU Đ/S KHÁC -->
+<a class="btn-primary" href="menu-ds.html"
+   style="background:linear-gradient(90deg,#22c55e,#16a34a);padding:22px 16px;text-decoration:none;display:block;text-align:center;color:#fff;font-weight:800;border-radius:13px;font-size:16px;letter-spacing:1px">
+  ✅ TRẮC NGHIỆM ĐÚNG/SAI (MENU)
+  <small style="display:block;font-size:12px;font-weight:600;opacity:.9;margin-top:4px">80 câu Đ/S • Ôn thi THPT</small>
+</a>
     </div>
   </div>
 </section>
@@ -404,8 +419,30 @@ document.addEventListener("DOMContentLoaded", ()=>{
     };
   }
 });
-
 /* ===== LOAD DATA THEO MÔN + SET + ĐỀ ===== */
+  function toggleMenuDungSai() {
+  const params = new URLSearchParams(window.location.search);
+  const mon = params.get("mon") || "lich-su";
+  
+  if (mon === "dia-ly") {
+    const menu = document.getElementById('subMenuDS_TLN');
+    const hint = document.getElementById('subMenuHint');
+    if (menu.style.display === 'none' || menu.style.display === '') {
+      menu.style.display = 'flex';
+      if (hint) hint.textContent = "👆 Bấm lần nữa để thu gọn";
+    } else {
+      menu.style.display = 'none';
+      if (hint) hint.textContent = "👆 Bấm để chọn chế độ";
+    }
+  } else {
+    chonBoDe('dungsai');
+  }
+}
+
+// Sau khi dán xong hàm trên, dòng tiếp theo mới là dòng 424 cũ của bro:
+(function loadMonData(){
+  const params = new URLSearchParams(window.location.search);
+  // ... code cũ ...
 (function loadMonData(){
   const params = new URLSearchParams(window.location.search);
   const mon = params.get("mon") || "lich-su";
