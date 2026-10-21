@@ -1,8 +1,9 @@
 /* =========================================================
-   DATA CÂU HỎI LỊCH SỬ - GIỮA KÌ 1 (Bản sạch - 25 câu ABCD)
+   DATA CÂU HỎI LỊCH SỬ - GIỮA KÌ 1 (Bản hoàn chỉnh)
    ========================================================= */
 window.ON_TAP_DATA = window.QUESTIONS = [];
 
+/* ===== PHẦN I: 25 CÂU TRẮC NGHIỆM ABCD ===== */
 window.ON_TAP_DATA.push(
   {
     type: "abcd",
@@ -178,5 +179,69 @@ window.ON_TAP_DATA.push(
     o: ["bắt đầu xây dựng quan hệ chính trị ổn định.", "chỉ tập trung vào hợp tác chính trị - an ninh.", "thành lập và xây dựng Cộng đồng ASEAN.", "mở rộng ASEAN 5 thành ASEAN 10."],
     a: 2,
     explain: "Giai đoạn 2015 đến nay đánh dấu việc thành lập và xây dựng Cộng đồng ASEAN."
+  }
+);
+
+/* ===== PHẦN II: 6 CÂU ĐÚNG/SAI ===== */
+window.ON_TAP_DATA.push(
+  {
+    type: "dungsai",
+    q: "Câu 1: Đọc đoạn tư liệu sau đây: “Đầu năm 1945, Hồng quân Liên Xô và quân Đồng minh từ hai hướng Đông, Tây cùng tiến về nước Đức. Trong bối cảnh sự thất bại của chủ nghĩa phát xít đang đến gần, Hội nghị Thượng đỉnh Ianta (Crưm) được tổ chức với sự tham dự của những người đứng đầu ba nước Liên Xô, Anh, Mĩ là Xtalin, Sớcsin và Rudơven, từ ngày 04 đến 12/02/1945.”",
+    statements: [
+      { text: "Đoạn tư liệu trên đề cập đến hội nghị thượng đỉnh cuối cùng giữa Liên Xô, Mỹ và Anh trong Chiến tranh thế giới thứ hai.", answer: false },
+      { text: "Hội nghị Ianta (tháng 2/1945) được triệu tập trong bối cảnh cuộc Chiến tranh thế giới thứ hai đang bước vào giai đoạn kết thúc.", answer: true },
+      { text: "Ba cường quốc Liên Xô, Mỹ và Anh triệu tập Hội nghị Ianta (tháng 2/1945) nhằm mục đích phân chia lợi ích và thuộc địa.", answer: false },
+      { text: "Vai trò của ba cường quốc Liên Xô, Mỹ và Anh trong Hội nghị Ianta (tháng 2/1945) là quyết định, nòng cốt và thứ yếu.", answer: false }
+    ]
+  },
+  {
+    type: "dungsai",
+    q: "Câu 2: Đọc đoạn tư liệu sau đây: “…, Hội nghị chấp nhận những điều kiện của Liên Xô về việc tham gia chiến tranh tiêu diệt quân phiệt Nhật, bao gồm: 1) Duy trì nguyên trạng và công nhận nền độc lập của Mông Cổ. 2) Trả lại cho Liên Xô những quyền lợi mà nước Nga bị mất sau Chiến tranh Nga - Nhật (1904 - 1905), như trả lại miền Nam đảo Xakhalin và quần đảo Curin, quốc tế hoá cảng Đại Liên (Trung Quốc), cho Liên Xô thuê cảng Lữ Thuận (Trung Quốc) làm căn cứ hải quân... 6) Phần còn lại của châu Á (Đông Nam Á, Tây Á, Nam Á...) vẫn thuộc phạm vi ảnh hưởng truyền thống của các nước phương Tây.”",
+    statements: [
+      { text: "Đoạn tư liệu trên đề cập đến việc phân chia khu vực đóng quân và phạm vi ảnh hưởng của các cường quốc ở châu Âu và châu Á tại Hội nghị Ianta (tháng 2/1945).", answer: false },
+      { text: "Liên Xô có thể khôi phục “quyền lợi mà nước Nga bị mất sau Chiến tranh Nga - Nhật (1904 - 1905)” vì chấp nhận chia sẻ nghĩa vụ Đồng minh.", answer: true },
+      { text: "Quyết định Đông Nam Á vẫn thuộc phạm vi ảnh hưởng truyền thống của các nước phương Tây có tác động tích cực đến phong trào giành độc lập khu vực này.", answer: false },
+      { text: "Theo quyết định Hội nghị Ianta (tháng 2/1945), Mông Cổ vẫn là nước dân chủ nhân dân.", answer: true }
+    ]
+  },
+  {
+    type: "dungsai",
+    q: "Câu 3: Đọc đoạn tư liệu sau đây: “…Xuất phát từ lợi ích chiến lược căn bản của mình, các cường quốc tiến hành điều chỉnh lại chính sách đối ngoại để tìm chỗ đứng tốt nhất, xây dựng khuôn khổ quan hệ mới ổn định lâu dài, xác lập các điều kiện quốc tế có lợi hơn, mở rộng hệ thống an ninh quốc gia, tạo ra không khí quốc tế để xây dựng kinh tế nước mình như mục tiêu chủ yếu trong quá trình điều chỉnh. Trước những mâu thuẫn tranh chấp với nhau, các nước lớn đều tìm kiếm các biện pháp với xu hướng thông qua đối thoại, thỏa hiệp và tránh xung đột. Đặc điểm nổi bật trong các quan hệ điều chỉnh giữa các nước lớn là tính hai mặt.”",
+    statements: [
+      { text: "Sau Chiến tranh lạnh, hầu hết các cường quốc trên thế giới tiến hành điều chỉnh chính sách đối ngoại chủ yếu vì không còn mâu thuẫn ý thức hệ với nhau.", answer: false },
+      { text: "Tính hai mặt trong chính sách đối ngoại của các cường quốc sau Chiến tranh lạnh là hợp tác và cạnh tranh, mâu thuẫn và hài hòa, tiếp xúc và dung hòa.", answer: false },
+      { text: "Việc “đối thoại, thỏa hiệp và tránh xung đột” là phương thức quan trọng, thúc đẩy quan hệ các quốc gia ngày càng xích lại gần nhau sau Chiến tranh lạnh.", answer: true },
+      { text: "Sự khác nhau ý thức hệ và chạy đua lợi ích, tranh giành ảnh hưởng giữ vai trò quyết định đến tính hai mặt trong chính sách đối ngoại của các cường quốc sau Chiến tranh lạnh.", answer: true }
+    ]
+  },
+  {
+    type: "dungsai",
+    q: "Câu 4: Đọc đoạn tư liệu sau đây: “Toàn cầu hoá mà trước hết và thực chất là toàn cầu hoá kinh tế đang trở thành một đặc trưng chủ yếu của sự phát triển thế giới. Xu thế toàn cầu hoá là xu thế khách quan, tất yếu, không thể đảo ngược. Toàn cầu hóa mang lại nhiều cơ hội nhưng cũng hàm chứa không ít thách thức to lớn đối với các quốc gia, đặc biệt là các nước đang phát triển. Cuộc khủng hoảng tài chính - tiền tệ châu Á năm 1997 - 1998 là minh chứng sống động về sức tàn phá của các lực lượng tài chính xuyên quốc gia đối với các nền kinh tế đang phát triển chưa được chuẩn bị đầy đủ để đường đầu với những thách thức của toàn cầu hoá.”",
+    statements: [
+      { text: "Đoạn tư liệu trên đề cập đến một trong những xu thế phát triển chính của thế giới sau Chiến tranh lạnh.", answer: true },
+      { text: "Xu thế toàn cầu hóa là “xu thế khách quan, tất yếu, không thể đảo ngược” vì đây là di sản của Chiến tranh lạnh.", answer: false },
+      { text: "Một trong những thách thức của xu thế toàn cầu hóa sau Chiến tranh lạnh là làm trầm trọng thêm bất công xã hội.", answer: true },
+      { text: "Sự phát triển của xu thế toàn cầu hóa đặt ra nhiều thách thức đòi hỏi các nước phải tăng cường quan hệ hợp tác quốc tế.", answer: true }
+    ]
+  },
+  {
+    type: "dungsai",
+    q: "Câu 5: Đọc đoạn tư liệu sau đây: “Sau khi Chiến tranh lạnh kết thúc, so sánh lực lượng trên bình diện toàn cầu từ chỗ cân bằng giữa hai hệ thống chính trị - xã hội đối lập này chuyển sang trạng thái mất cân bằng theo hướng có lợi cho Mĩ và phương Tây. Tuy nhiên, tình hình quốc tế đã không phát triển một cách hoà bình, ổn định như người ta mong đợi. Sự đối đầu Đông - Tây về hệ tư tưởng, chính trị, quân sự, kinh tế... đã từng chi phối đời sống quốc tế trong suốt thời kì Chiến tranh lạnh, nay được chuyển hoá dưới những hình thức khác, bên cạnh sự nổi lên của những mâu thuẫn mới. Sự vận động của các mâu thuẫn này sẽ quyết định diện mạo của trật tự thế giới và xu hướng phát triển của quan hệ quốc tế sau Chiến tranh lạnh.”",
+    statements: [
+      { text: "Cụm từ “hai hệ thống chính trị - xã hội đối lập” được đề cập trong đoạn tư liệu trên là hệ thống tư bản chủ nghĩa và hệ thống xã hội chủ nghĩa.", answer: true },
+      { text: "Sau Chiến tranh lạnh, tình hình quốc tế “không phát triển một cách hòa bình, ổn định” và có sự mâu thuẫn giữa các nước lớn xung quanh việc thiết lập trật tự thế giới mới.", answer: true },
+      { text: "Một trong những mâu thuẫn mới xuất hiện sau Chiến tranh lạnh là mâu thuẫn dân tộc.", answer: false },
+      { text: "Đoạn tư liệu trên đề cập đến xu thế hòa bình, hợp tác và phát triển sau Chiến tranh lạnh.", answer: false }
+    ]
+  },
+  {
+    type: "dungsai",
+    q: "Câu 6: Đọc đoạn tư liệu sau đây: “Việc xây dựng Cộng đồng Kinh tế ASEAN (AEC) nhằm mục tiêu tạo ra một thị trường chung duy nhất và cơ sở sản xuất thống nhất, trong đó có sự lưu chuyển tự do của hàng hóa, dịch vụ, đầu tư, vốn và lao động có tay nghề; từ đó nâng cao tính cạnh tranh và thúc đẩy sự thịnh vượng chung cho cả khu vực; tạo sự hấp dẫn đối với đầu tư - kinh doanh từ bên ngoài.”",
+    statements: [
+      { text: "Việc xây dựng Cộng đồng Kinh tế ASEAN (AEC) phù hợp với xu thế phát triển lấy kinh tế làm trung tâm sau Chiến tranh lạnh.", answer: true },
+      { text: "Việc thành lập thị trường chung và nhất thể hóa kinh tế là mục tiêu cuối cùng trong quá trình xây dựng Cộng đồng Kinh tế ASEAN (AEC).", answer: false },
+      { text: "Cộng đồng Kinh tế ASEAN không trở thành một thực thể kinh tế đơn nhất như EU chủ yếu vì không có quốc gia nào đóng vai trò trung tâm.", answer: false },
+      { text: "Đoạn tư liệu phản ánh một trong ba trụ cột chính của Cộng đồng ASEAN (AC).", answer: true }
+    ]
   }
 );
