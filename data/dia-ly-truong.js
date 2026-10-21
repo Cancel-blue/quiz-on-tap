@@ -544,3 +544,15 @@ window.DIA_ALL.push(
 
 /* ===== GÁN BIẾN TOÀN CỤC ĐỂ GAME ĐỌC ĐƯỢC ===== */
 window.ON_TAP_DATA = window.QUESTIONS = window.DIA_ALL;
+window.DIA_ALL.push(
+  {
+    type: "abcd",
+    q: "Do tiếp giáp Biển Đông nên nước ta có",
+    o: ["hai lần Mặt Trời lên thiên đỉnh trong năm.", "gió mùa Đông Bắc hoạt động ở mùa đông.", "tổng lượng mưa lớn, độ ẩm không khí cao.", "một mùa có mưa nhiều, một mùa mưa ít."],
+    a: 2,
+    explain: "Biển Đông cung cấp hơi ẩm, làm cho nước ta có lượng mưa lớn và độ ẩm cao."
+  }
+);
+
+// Cập nhật lại biến toàn cục sau khi push
+window.ON_TAP_DATA = window.QUESTIONS = window.DIA_ALL;
