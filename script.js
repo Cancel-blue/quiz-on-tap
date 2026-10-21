@@ -577,19 +577,35 @@ function selectDungSai(idx, chonDung, st, el){
     S.answered = true;
     clearInterval(S.timerId);
 
-    let bonus = 0;
-    const allCorrect = (S.dsState.correct === S.dsState.total);
-    if(allCorrect){
-      bonus = 50;
-      S.score += bonus;
-      S.correctCount++;
-    } else {
-      S.wrongCount++;
-    }
-    updateHud();
+    if(S.dsState.answered >= S.dsState.total){
+  S.answered = true;
+  clearInterval(S.timerId);
 
-    const ok = S.dsState.correct >= Math.ceil(S.dsState.total / 2);
-    setFeedback(ok, `Hoàn thành! Đúng ${S.dsState.correct}/${S.dsState.total} ý` + (bonus ? " (+50đ)" : ""));
+  let bonus = 0;
+  const allCorrect = (S.dsState.correct === S.dsState.total);
+  
+  // Đúng 4/4 thì được thưởng 50đ
+  if(allCorrect){
+    bonus = 50;
+    S.score += bonus;
+  }
+
+  // Đánh giá: Đúng từ 2 ý trở lên (>=50%) là tính là CÂU ĐÚNG
+  const isOverallCorrect = (S.dsState.correct >= Math.ceil(S.dsState.total / 2));
+
+  if(isOverallCorrect){
+    S.correctCount++;
+  } else {
+    S.wrongCount++;
+    // Chỉ đưa vào danh sách câu sai nếu làm sai > 1/2 số ý
+    S.wrongPool.add(S.current.qIndex);
+    S.wrongLog.push(S.current.qIndex);
+  }
+  
+  updateHud();
+
+  const ok = isOverallCorrect;
+  setFeedback(ok, `Hoàn thành! Đúng ${S.dsState.correct}/${S.dsState.total} ý` + (bonus ? " (+50đ)" : ""));
 
     const q = QUESTIONS[S.current.qIndex];
     if(q.explain){
