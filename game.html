@@ -17,10 +17,10 @@
     <p class="sub">Chọn bộ đề để chơi</p>
     <div style="display:grid;gap:14px;margin-top:14px">
       
-      <!-- NÚT 1: TRẮC NGHIỆM 60 CÂU -->
+      <!-- NÚT 1: TRẮC NGHIỆM -->
       <button class="btn-primary" onclick="chonBoDe('truong')"
               style="background:linear-gradient(90deg,#fbbf24,#f59e0b);padding:22px 16px">
-        🎮 TRẮC NGHIỆM 60 CÂU
+        🎮 TRẮC NGHIỆM
         <small style="display:block;font-size:12px;font-weight:600;opacity:.9;margin-top:4px">Đề ôn tập ABCD</small>
       </button>
 
@@ -42,7 +42,7 @@
         <button class="btn-primary" id="btnTLN" onclick="chonBoDe('tlngan')"
                 style="background:#101a2c;border:1.5px solid #f43f5e;padding:16px">
           ✍️ TRẢ LỜI NGẮN
-          <small style="display:block;font-size:12px;color:#94a3b8;margin-top:4px">8 câu TLN (Chỉ môn Địa)</small>
+          <small style="display:block;font-size:12px;color:#94a3b8;margin-top:4px">8 câu TLN</small>
         </button>
       </div>
 
@@ -71,7 +71,6 @@
     <div class="diff-grid" id="deGridFull">
       <button class="diff on" type="button" data-key="01-02"><b>ĐỀ 1-2</b></button>
       <button class="diff" type="button" data-key="03-04"><b>ĐỀ 3-4</b></button>
-      <!-- Bạn có thể tự thêm các đề khác vào đây -->
     </div>
     <p class="label-diff">CHỌN MỨC ĐỘ</p>
     <div class="diff-grid" id="diffGridFull">
@@ -244,14 +243,14 @@ function chonBoDe(set){
   sessionStorage.setItem("chosenSet", set);
   const url = new URL(window.location.href);
   url.searchParams.set("set", set);
-  window.location.href = url.toString(); // Ép tải lại trang
+  window.location.href = url.toString();
 }
 
 function quayLaiChonSet(){
   sessionStorage.removeItem("chosenSet");
   const url = new URL(window.location.href);
   url.searchParams.delete("set");
-  window.location.href = url.toString(); // Ép tải lại trang
+  window.location.href = url.toString();
 }
 
 function toggleHoaMenu(){
@@ -290,7 +289,8 @@ function toggleMenuDungSai() {
   const params = new URLSearchParams(window.location.search);
   const mon = params.get("mon") || "lich-su";
   
-  if (mon === "dia-ly") {
+  // Đã thêm sinh-hoc vào đây để nó hiện menu xổ xuống
+  if (mon === "dia-ly" || mon === "sinh-hoc") {
     const menu = document.getElementById('subMenuDS_TLN');
     const hint = document.getElementById('subMenuHint');
     if (menu.style.display === 'none' || menu.style.display === '') {
@@ -301,7 +301,7 @@ function toggleMenuDungSai() {
       if (hint) hint.textContent = "👆 Bấm để chọn chế độ";
     }
   } else {
-    chonBoDe('dungsai'); // Nếu là Lịch sử thì chạy thẳng Đúng/Sai
+    chonBoDe('dungsai'); // Lịch sử / Hóa chạy thẳng Đúng/Sai
   }
 }
   
@@ -315,14 +315,14 @@ document.addEventListener("DOMContentLoaded", ()=>{
     "dia-ly":  { name:"ĐỊA LÝ",  icon:"🌍" },
     "vat-ly":  { name:"VẬT LÝ",  icon:"⚛️" },
     "toan":    { name:"TOÁN",    icon:"🔢" },
-    "hoa":     { name:"HÓA HỌC", icon:"🧪" }
+    "hoa":     { name:"HÓA HỌC", icon:"🧪" },
+    "sinh-hoc":{ name:"SINH HỌC", icon:"🧬" }
   };
   const info = monInfo[mon] || monInfo["lich-su"];
 
   const title = document.getElementById("chooseSetTitle");
   if(title) title.textContent = info.icon + " " + info.name;
 
-  /* SỬA LỖI ĐIỀU HƯỚNG TẠI ĐÂY: Luôn hiện màn hình chọn chế độ nếu chưa chọn set */
   if (setFromUrl === "full") {
     hienThiManHinh("screenChooseLevelFull");
   } else if (setFromUrl) {
@@ -332,7 +332,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
     if(savedDiff) selectedFullDiff = savedDiff;
     if(savedDe) selectedDeFull = savedDe;
   } else {
-    // Môn nào cũng phải hiện màn hình chọn chế độ trước
     hienThiManHinh("screenChooseSet");
   }
 
@@ -391,7 +390,8 @@ document.addEventListener("DOMContentLoaded", ()=>{
     "dia-ly":  { name:"ĐỊA LÝ",  icon:"🌍", sub:"Ôn tập Địa lý" },
     "vat-ly":  { name:"VẬT LÝ",  icon:"⚛️", sub:"Ôn tập Vật lý" },
     "toan":    { name:"TOÁN",    icon:"🔢", sub:"Ôn tập Toán" },
-    "hoa":     { name:"HÓA HỌC", icon:"🧪", sub:"Ôn tập Hóa học" }
+    "hoa":     { name:"HÓA HỌC", icon:"🧪", sub:"Ôn tập Hóa học" },
+    "sinh-hoc":{ name:"SINH HỌC", icon:"🧬", sub:"Ôn tập Sinh học" }
   };
   const info = monNames[mon] || monNames["lich-su"];
   document.title = info.name + " - Ôn tập";
