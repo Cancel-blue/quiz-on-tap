@@ -1,5 +1,5 @@
 /* =========================================================
-   SCRIPT.JS - Bản chuẩn (6 câu Đ/S, đánh dấu ý sai)
+   SCRIPT.JS - Bản chuẩn (v8 - Tối ưu)
    ========================================================= */
 
 const DIFFICULTIES = {
@@ -54,7 +54,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const currentSet = urlParams.get("set") || sessionStorage.getItem("chosenSet") || "truong";
 sessionStorage.setItem("chosenSet", currentSet);
 
-// Lọc câu hỏi: Giữ nguyên 6 câu Đ/S (không tách nhỏ nữa)
+// Lọc câu hỏi chuẩn xác
 let QUESTIONS = [];
 if (currentSet === "dungsai") {
     QUESTIONS = allQuestions.filter(q => q.type === "dungsai");
@@ -74,6 +74,16 @@ function shuffle(a){
   return a;
 }
 
+function getQType(q) {
+  if (!q) return "abcd";
+  if (q.type && ["abcd","dungsai","tlngan"].includes(q.type)) return q.type;
+  return "abcd";
+}
+
+if(QUESTIONS.length === 0) console.error("Không có data câu hỏi cho môn: " + MON);
+/* =========================================================
+   KHỞI TẠO THANH TRƯỢT & CHỌN MỨC ĐỘ
+   ========================================================= */
 const DELAY_OPTIONS = [5, 10, 20];
 const BOT_SPEED_OPTIONS = [
   { label:"Rất chậm", mult:2.0 },
@@ -115,16 +125,6 @@ function getDelayMs(isCorrect){
   return (isCorrect ? sec * 0.5 : sec) * 1000;
 }
 
-function getQType(q) {
-  if (!q) return "abcd";
-  if (q.type && ["abcd","dungsai","tlngan"].includes(q.type)) return q.type;
-  return "abcd";
-}
-
-if(QUESTIONS.length === 0) console.error("Không có data câu hỏi cho môn: " + MON);
-/* =========================================================
-   BẮT ĐẦU GAME & RENDER CÂU HỎI
-   ========================================================= */
 (function checkChosenDiff(){
   const params = new URLSearchParams(window.location.search);
   if(params.get("set") === "full"){
@@ -168,6 +168,9 @@ if(toggleEl){
   };
 }
 
+/* =========================================================
+   BẮT ĐẦU GAME
+   ========================================================= */
 $("btnStart").onclick = ()=>{
   const name = $("playerName").value.trim();
   if(!name){
@@ -182,6 +185,7 @@ $("btnStart").onclick = ()=>{
   }
   startGame(name, selectedDiff);
 };
+
 $("playerName").addEventListener("keydown", e=>{
   if(e.key==="Enter") $("btnStart").click();
 });
@@ -239,7 +243,9 @@ function showScreen(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active", s.id===id));
   window.scrollTo({top:0, behavior:"smooth"});
 }
-
+/* =========================================================
+   BUILD OPTIONS + RENDER CÂU HỎI
+   ========================================================= */
 function buildOptions(qIdx, hard){
   const q = QUESTIONS[qIdx];
   const qType = getQType(q);
@@ -423,9 +429,9 @@ function renderTLNganQuestion(q, cur, box){
 
   box.appendChild(wrap);
   setTimeout(()=>input.focus(), 100);
-}
+  }
 /* =========================================================
-   TIMER & XỬ LÝ ĐÁP ÁN
+   TIMER
    ========================================================= */
 function startTimer(){
   clearInterval(S.timerId);
@@ -464,7 +470,9 @@ function paintTimer(){
   $("timerText").style.color = p<=20 ? "#f87171" : "#94a3b8";
 }
 
-/* ===== XỬ LÝ ĐÁP ÁN ABCD ===== */
+/* =========================================================
+   XỬ LÝ ĐÁP ÁN ABCD
+   ========================================================= */
 function handleAnswer(selected){
   if(!S || S.answered || S.dead) return;
   S.answered = true;
@@ -518,6 +526,7 @@ function handleAnswer(selected){
     if(S.curseRemaining <= 0 && Math.random() < 0.25) setTimeout(()=>showCursePopup(), 1000);
   }
 
+  // Hiển thị giải thích
   const q = QUESTIONS[S.current.qIndex];
   if(q && q.explain){
     const box = $("options");
@@ -533,9 +542,10 @@ function handleAnswer(selected){
   const delay = getDelayMs(isCorrect);
   clearTimeout(pendingTimeout);
   pendingTimeout = setTimeout(()=>{ if(S && !S.dead) nextQuestion(); }, delay);
-}
-
-/* ===== XỬ LÝ ĐÚNG / SAI (Đánh dấu từng ý) ===== */
+       }
+/* =========================================================
+   XỬ LÝ ĐÚNG / SAI (Đánh dấu từng ý)
+   ========================================================= */
 function selectDungSai(idx, chonDung, st, el){
   if(!S || S.answered || S.dead) return;
   if(el.classList.contains("locked")) return;
@@ -620,7 +630,9 @@ function selectDungSai(idx, chonDung, st, el){
   }
 }
 
-/* ===== XỬ LÝ TRẢ LỜI NGẮN ===== */
+/* =========================================================
+   XỬ LÝ TRẢ LỜI NGẮN
+   ========================================================= */
 function submitTLN(q){
   if(!S || S.answered || S.dead) return;
   const input = $("tlInput");
@@ -668,9 +680,10 @@ function submitTLN(q){
   pendingTimeout = setTimeout(()=>{
     if(S && !S.dead) nextQuestion();
   }, getDelayMs(isCorrect));
-}
-
-/* ===== XỬ LÝ KHI HẾT GIỜ ===== */
+     }
+/* =========================================================
+   XỬ LÝ KHI HẾT GIỜ
+   ========================================================= */
 function handleTimeout(){
   if(!S || S.answered || S.dead) return;
   const q = QUESTIONS[S.current.qIndex];
@@ -751,6 +764,7 @@ function updateProgress(){
   $("progFill").style.width = (done / QUESTIONS.length * 100) + "%";
   $("progTxt").textContent = `${Math.min(done+1, QUESTIONS.length)}/${QUESTIONS.length}`;
 }
+
 /* =========================================================
    VẬT PHẨM & HIỆU ỨNG
    ========================================================= */
@@ -856,17 +870,13 @@ function useItem(key){
   }
   else if(key === "fifty"){
     const cur = S.current;
-    // Chỉ dùng được khi là câu ABCD (có 4 đáp án)
     if(!cur.options || cur.options.length < 4){ 
       setFeedback(false, "🎯 Chỉ dùng được ở câu trắc nghiệm ABCD!"); 
       return; 
     }
     
-    // Tìm các đáp án sai để loại bỏ
     const wrongIdxs = cur.options.map((o,i)=>o.correct ? -1 : i).filter(i=>i>=0);
     shuffle(wrongIdxs);
-    
-    // Loại 2 đáp án sai
     const remove = wrongIdxs.slice(0, 2);
     
     const btns = [...$("options").children];
@@ -877,7 +887,6 @@ function useItem(key){
   updateHud();
   updateInventory();
 }
-
 /* =========================================================
    PVP BOTS
    ========================================================= */
@@ -923,6 +932,7 @@ function updatePvpBoard(){
     board.appendChild(el);
   });
 }
+
 /* =========================================================
    KẾT THÚC GAME & ĐIỀU HƯỚNG
    ========================================================= */
@@ -1038,6 +1048,12 @@ function genRoomCode(){
 
 $("btnOnlineMode").onclick = ()=>{
   if(QUESTIONS.length === 0){ alert("Chưa có câu hỏi cho môn này!"); return; }
+  // Chỉ cho phép chơi online với câu hỏi ABCD
+  if(currentSet !== "truong"){
+    alert("Chế độ Đấu Online chỉ hỗ trợ Trắc nghiệm ABCD!");
+    return;
+  }
+  
   const name = $("playerName").value.trim();
   if(!name){
     $("playerName").classList.add("err");
