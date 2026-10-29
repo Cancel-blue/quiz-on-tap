@@ -17,15 +17,23 @@
     <a class="subject-card lich-su" href="game.html?mon=lich-su">
       <div class="subject-icon">📜</div>
       <div class="subject-name">LỊCH SỬ</div>
-      <div class="subject-desc">23 câu • Giữa kì 1</div>
+      <div class="subject-desc">Đề giữa kì 1</div>
       <div class="subject-stats" id="stats-lich-su">Chưa chơi</div>
     </a>
 
     <a class="subject-card dia-ly" href="game.html?mon=dia-ly">
       <div class="subject-icon">🌍</div>
       <div class="subject-name">ĐỊA LÝ</div>
-      <div class="subject-desc">Sắp có đề</div>
+      <div class="subject-desc">Đề giữa kì 1</div>
       <div class="subject-stats" id="stats-dia-ly">Chưa chơi</div>
+    </a>
+
+    <!-- THÊM NÚT MÔN SINH HỌC TẠI ĐÂY -->
+    <a class="subject-card sinh-hoc" href="game.html?mon=sinh-hoc">
+      <div class="subject-icon">🧬</div>
+      <div class="subject-name">SINH HỌC</div>
+      <div class="subject-desc">Đề giữa kì 1</div>
+      <div class="subject-stats" id="stats-sinh-hoc">Chưa chơi</div>
     </a>
 
     <a class="subject-card vat-ly" href="game.html?mon=vat-ly">
@@ -57,7 +65,8 @@
 
 <script>
 (function loadStats(){
-  ["lich-su","dia-ly","vat-ly","toan","hoa"].forEach(mon=>{
+  // Đã thêm "sinh-hoc" vào danh sách
+  ["lich-su","dia-ly","sinh-hoc","vat-ly","toan","hoa"].forEach(mon=>{
     const best = localStorage.getItem("bestScore_" + mon);
     const plays = localStorage.getItem("plays_" + mon);
     const el = document.getElementById("stats-" + mon);
