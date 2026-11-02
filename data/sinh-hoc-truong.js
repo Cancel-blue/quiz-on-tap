@@ -186,7 +186,7 @@ window.SINH_ALL.push(
     statements: [
       { text: "Trong quá trình này, enzyme RNA polymerase bám vào vùng khởi động của gene và di chuyển trên mạch khuôn.", answer: true },
       { text: "Enzyme RNA polymerase trượt dọc theo mạch gốc trên gene theo chiều 3' → 5', để tổng hợp RNA có chiều 3' → 5'.", answer: false },
-      { text: "Khi kết thúc quá trình phiên mã tạo ra mRNA có thể được dịch mã ngay.", answer: false },
+      { text: "Khi kết thúc quá trình phiên mã tạo ra mRNA có thể được dịch mã ngay.", answer: true },
       { text: "Ở sinh vật nhân thực, gene có vùng mã hóa không liên tục (gene phân mảnh).", answer: true }
     ]
   },
