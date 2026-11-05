@@ -357,7 +357,7 @@ window.ON_TAP_DATA = [
       { text: "Theo thang nhiệt độ Celsius, từ nhiệt độ đông đặc đến nhiệt độ sôi của nước được chia thành 100 phần bằng nhau, mỗi phần ứng với 1°F.", answer: false },
       { text: "Ở nhiệt độ không tuyệt đối, thế năng chuyển động nhiệt của các phân tử bằng không.", answer: false },
       { text: "Nhiệt dung riêng của một chất là nhiệt lượng cần truyền cho 1g chất đó để làm cho nhiệt độ của nó tăng thêm 1°C.", answer: false },
-      { text: "Nhiệt nóng chảy riêng của một chất là nhiệt lượng cần cung cấp cho vật để làm vật nóng chảy hoàn toàn ở nhiệt độ nóng chảy và áp suất tiêu chuẩn.", answer: true }
+      { text: "Nhiệt nóng chảy riêng của một chất là nhiệt lượng cần cung cấp cho vật để làm vật nóng chảy hoàn toàn ở nhiệt độ nóng chảy và áp suất tiêu chuẩn.", answer: false }
     ],
     explain: "Ý a sai vì thang Celsius chia thành 100 phần, mỗi phần là 1°C (không phải 1°F). Ý b sai vì ở nhiệt độ không tuyệt đối, ĐỘNG NĂNG chuyển động nhiệt bằng không. Ý c sai vì nhiệt dung riêng được tính cho 1kg chất, không phải 1g."
   },
