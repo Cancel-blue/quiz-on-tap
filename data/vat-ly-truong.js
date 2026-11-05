@@ -1,4 +1,7 @@
 window.ON_TAP_DATA = [
+  // ==========================================
+  // PHẦN I: TRẮC NGHIỆM NHIỀU PHƯƠNG ÁN (ABCD)
+  // ==========================================
   {
     type: "abcd",
     q: "Hãy tìm ý không đúng với mô hình động học phân tử trong các ý sau:",
@@ -310,5 +313,63 @@ window.ON_TAP_DATA = [
     ],
     a: 3,
     explain: "Nóng chảy là quá trình chuyển từ thể rắn sang thể lỏng. Nước đá tan thành nước chính là sự nóng chảy."
+  },
+    // ==========================================
+  // PHẦN II: TRẮC NGHIỆM ĐÚNG / SAI
+  // ==========================================
+  {
+    type: "dungsai",
+    q: "Trong các nhận định sau đây về cấu trúc của chất, hãy cho biết câu nào đúng, câu nào sai:",
+    statements: [
+      { text: "Khoảng cách giữa các phân tử chất khí rất lớn so với kích thước của chúng.", answer: true },
+      { text: "Các chất được cấu tạo từ các hạt riêng biệt là phân tử.", answer: true },
+      { text: "Khi đúc đồng, gang, thép... người ta đã ứng dụng các hiện tượng nóng chảy và đông đặc.", answer: true },
+      { text: "Về mùa đông ở các xứ lạnh ta thấy người đi thường thở ra “khói” là do hơi thở của người có chứa nhiều hơi nước, khi ra ngoài không khí lạnh bị bay hơi.", answer: false }
+    ],
+    explain: "Ý d sai vì hơi nước gặp lạnh sẽ bị ngưng tụ thành các hạt nước li ti chứ không phải bay hơi."
+  },
+  {
+    type: "dungsai",
+    q: "Các phát biểu sau đây đúng hay sai?",
+    statements: [
+      { text: "Khoảng cách giữa các phân tử càng lớn thì lực liên kết giữa chúng càng yếu.", answer: true },
+      { text: "Các nguyên tử, phân tử chất lỏng dao động xung quanh các vị trí cân bằng cố định.", answer: false },
+      { text: "Sự hoá hơi là sự bay hơi xảy ra trên bề mặt chất lỏng.", answer: false },
+      { text: "Khi đang nóng chảy, nhiệt độ của chất rắn kết tinh tiếp tục tăng.", answer: false }
+    ],
+    explain: "Ý b sai vì VTCB không cố định. Ý c sai vì hóa hơi xảy ra cả trên mặt thoáng và trong lòng chất lỏng (sự sôi). Ý d sai vì khi nóng chảy nhiệt độ không đổi."
+  },
+  {
+    type: "dungsai",
+    q: "Các phát biểu sau đây đúng hay sai?",
+    statements: [
+      { text: "Nhiệt độ điểm mà nước tinh khiết tồn tại đồng thời ở thể rắn, lỏng và hơi trong trạng thái cân bằng (ở áp suất tiêu chuẩn) có độ lớn 0,1°C.", answer: false },
+      { text: "Nhiệt độ không tuyệt đối là nhiệt độ mà tại đó tất cả các chất có động năng chuyển động nhiệt của các phân tử hoặc nguyên tử bằng không và thế năng của chúng là không.", answer: false },
+      { text: "Gọi Q là nhiệt lượng cần truyền cho vật, m là khối lượng của vật và ΔT là độ tăng nhiệt độ của vật. Nhiệt dung riêng được xác định bằng c = Q/(m.ΔT).", answer: true },
+      { text: "Nhiệt nóng chảy riêng của một chất được xác định bằng hệ thức λ = Q/m với Q là nhiệt lượng cần truyền cho vật, m là khối lượng của vật.", answer: true }
+    ],
+    explain: "Ý a sai vì điểm ba thể của nước là 0,01°C. Ý b sai vì ở nhiệt độ không tuyệt đối chỉ có động năng bằng 0, thế năng không nhất thiết bằng 0."
+  },
+  {
+    type: "dungsai",
+    q: "Các phát biểu sau đây đúng hay sai?",
+    statements: [
+      { text: "Theo thang nhiệt độ Celsius, từ nhiệt độ đông đặc đến nhiệt độ sôi của nước được chia thành 100 phần bằng nhau, mỗi phần ứng với 1°F.", answer: false },
+      { text: "Ở nhiệt độ không tuyệt đối, thế năng chuyển động nhiệt của các phân tử bằng không.", answer: false },
+      { text: "Nhiệt dung riêng của một chất là nhiệt lượng cần truyền cho 1g chất đó để làm cho nhiệt độ của nó tăng thêm 1°C.", answer: false },
+      { text: "Nhiệt nóng chảy riêng của một chất là nhiệt lượng cần cung cấp cho vật để làm vật nóng chảy hoàn toàn ở nhiệt độ nóng chảy và áp suất tiêu chuẩn.", answer: true }
+    ],
+    explain: "Ý a sai vì thang Celsius chia thành 100 phần, mỗi phần là 1°C (không phải 1°F). Ý b sai vì ở nhiệt độ không tuyệt đối, ĐỘNG NĂNG chuyển động nhiệt bằng không. Ý c sai vì nhiệt dung riêng được tính cho 1kg chất, không phải 1g."
+  },
+
+  // ==========================================
+  // PHẦN III: TRẮC NGHIỆM TRẢ LỜI NGẮN
+  // ==========================================
+  {
+    type: "tlngan",
+    q: "Xác định số ý <b>không đúng</b> trong các câu dưới đây:<br>A. Đưa cốc nước lạnh ra ngoài trời nóng thì thấy xuất hiện một lớp nước bám ngoài thành cốc, đó là hiện tượng đông đặc.<br>B. Trong suốt thời gian sôi, nhiệt độ của chất lỏng tăng dần lên.<br>C. Cồn y tế chuyển từ thể lỏng sang thể khí rất nhanh ở điều kiện thông thường. Khi xoa cồn vào da ta cảm thấy lạnh ở vùng da đó vì cồn khi bay hơi kéo theo lượng nước chỗ da đó ra khỏi cơ thể.<br>D. Sự bay hơi của chất lỏng xảy ra ở nhiệt độ bất kì.<br>E. Thuỷ ngân có nhiệt độ nóng chảy là -39°C và nhiệt sôi là 357°C. Khi trong phòng có nhiệt độ 30°C thì thuỷ ngân tồn tại ở cả thể lỏng và thể hơi.",
+    accept: ["3", "ba"],
+    hint: "Đọc kỹ từng ý A, B, C, D, E và tìm ra các ý sai.",
+    explain: "Có 3 ý không đúng (sai):<br>- A sai: Đó là hiện tượng ngưng tụ hơi nước trong không khí.<br>- B sai: Trong thời gian sôi, nhiệt độ chất lỏng không đổi.<br>- C sai: Cồn bay hơi thu nhiệt của da nên ta thấy lạnh.<br>(D và E là các phát biểu đúng)."
   }
 ];
